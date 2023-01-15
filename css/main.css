@@ -1,0 +1,75 @@
+body {
+    font-family: 'Bahnschrift';
+}
+
+thead {
+    font-size: large;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #D4D4D4;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #EFEFEF;
+}
+
+.header {
+    font-weight: bold;
+}
+
+span {
+    margin: 4px;
+}
+
+input {
+    margin: 4px;
+}
+
+button {
+    margin: 4px;
+}
+
+.title {
+    font-size: larger;
+    text-decoration: underline 2px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.flexContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.flexContainer::before {
+    content: "";
+}
+
+.flexContainer::after {
+    content: "";
+}
+
+.flexFlow {
+    flex-flow: row;
+}
+
+.contollItem {
+    padding: 15px;
+    margin: 2px;
+    border: 1px solid #D4D4D4;
+    border-radius: 30px;
+    width: 200px;
+    text-align: center;
+}
+
+
+.addButton {
+    margin-top: 25px;
+}

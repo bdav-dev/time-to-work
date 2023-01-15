@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>title</title>
+    <meta charset='utf-16'>
+    <link rel='stylesheet' type='text/css' href='css/main.css'>
+</head>
+
+<body>
+
+    <div style="width: 100%; text-align: center;">
+        <h1><u>Arbeitszeitrechner</u></h1>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="flexContainer">
+
+        <div class="flexFlow contollItem">
+
+            <p class="title">Zeitintervall</p>
+            <br />
+            <span>von:</span>
+            <input type="time" id="interval_from"></input>
+            <button onclick="replaceByCurrentTime('interval_from')">akt. Zeit</button>
+            <br />
+
+            <span>bis:</span>
+            <input type="time" id="interval_to"></input>
+            <button onclick="replaceByCurrentTime('interval_to')">akt. Zeit</button>
+            <br />
+            <button class="addButton" onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
+
+        </div>
+
+
+        <div class="flexFlow contollItem">
+            <p class="title">Zeitdifferenz</p>
+            <br />
+            <input type="time" id="difference"></input>
+            <br />
+            <button class="addButton" onclick="addTimeDifference('difference')">Hinzufügen</button>
+        </div>
+
+
+        <div class="flexFlow contollItem">
+            <p class="title">Einstellungen</p>
+            <br />
+            Arbeitszeit:<input type="time" id="timeToWork"></input>
+            <br/>
+            <input type="checkbox" id="breakActive" onclick="updateUI()"></input> typ. Pause: <input type="time" id="breakTime"></input>
+        </div>
+
+
+    </div>
+
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <table id="timeTable"></table>
+
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <table id="infoTable"></table>
+
+
+    <script src='js/main.js'></script>
+</body>
+
+</html>
