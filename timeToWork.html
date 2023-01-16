@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>title</title>
+    <title>title_ttW</title>
     <meta charset='utf-16'>
     <link rel='stylesheet' type='text/css' href='css/main.css'>
 </head>
@@ -13,10 +13,26 @@
         <h1><u>Arbeitszeitrechner</u></h1>
     </div>
 
+
+
+    <div class="centeredDiv">
+        <span id="time"></span>
+        <br />
+        <button style="margin-top: 10px;" onclick="updateUI()">Daten aktualisieren</button>
+    </div>
+
+
+
     <br />
     <br />
 
     <div class="flexContainer">
+
+        <div class="flexFlow contollItem">
+            <p class="title">Zeitstempel</p>
+            <br />
+            <button class="addButton" onclick="timestamp()">Zeitstempel erfassen</button>
+        </div>
 
         <div class="flexFlow contollItem">
 
@@ -49,8 +65,30 @@
             <p class="title">Einstellungen</p>
             <br />
             Arbeitszeit:<input type="time" id="timeToWork"></input>
+
             <br/>
-            <input type="checkbox" id="breakActive" onclick="updateUI()"></input> typ. Pause: <input type="time" id="breakTime"></input>
+
+            Überstunden: <input type="time" id="overtime"></input>
+
+            <table>
+                <tr>
+                    <td style="border: none; text-align: right;">
+                        <input class="vcenter2" type="checkbox" id="breakActive" onclick="updateUI()"></input>
+                    </td>
+
+                    <td style="border: none; text-align: left;">
+                        Rechne Pause von
+                        <input type="time" id="breakTime"></input>
+                        ein
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+
+        <div class="flexFlow contollItem">
+            <p class="title">Zugeinstellungen</p>
+            
         </div>
 
 

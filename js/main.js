@@ -1,3 +1,36 @@
+class TimeStamp {
+
+    constructor() {
+        this.timeInverval = new TimeInterval(currentTime(), null);
+    }
+
+    getTimeDifference() {
+        if(this.isOpen()) {
+            return TimeDifference.calculateTimeDifference(this.timeInverval.startTime, currentTime());
+        }
+
+        return this.timeInverval.getTimeDifference();
+    }
+
+    close() {
+        this.timeInverval.endTime = currentTime();
+    }
+
+    toString() {
+        if(this.isOpen()) {
+            return this.timeInverval.startTime.toString() + " - ...";
+        }
+        
+        return this.timeInverval.toString();
+    }
+
+    isOpen() {
+        return this.timeInverval.endTime == null;
+    }
+
+}
+
+
 class TimeDifference {
 
     constructor(timeDifference) {
@@ -115,7 +148,7 @@ class Time {
 }
 
 
-//table entries structure: [index, timeInterval, timeDifference]
+//table entries structure: [index, item]
 class TimeTableController {
 
     constructor(tableElement) {
@@ -124,6 +157,18 @@ class TimeTableController {
     }
 
     updateTable() {
+        for(let i = 0; i < this.tableEntries.length; i++) {
+            let tableEntry = this.tableEntries[i];
+
+            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen() && i != this.tableEntries.length - 1) {
+                let openTimeStamp = tableEntry[1];
+                this.tableEntries.splice(i, 1);
+                this.tableEntries.push([this.getHightestIndex() + 1, openTimeStamp]);
+                this.updateTable();
+                return;
+            }
+        }
+
         let tableInnerHTML = `<thead>
                                 <tr class="header">
                                     <td scope="col">Zeitintervall</td>
@@ -131,7 +176,7 @@ class TimeTableController {
                                     <td scope="col">Aktionen</td>
                                 </tr>
                               </thead>
-                              <tbody>`;
+                              <tbody class="cells">`;
 
         if(this.tableEntries.length == 0) {
             tableInnerHTML += `<tr>
@@ -141,14 +186,21 @@ class TimeTableController {
 
         for(let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
-
             tableEntry[0] = i;
 
             let timeInvervalText = "";
-            let timeDifferenceText = tableEntry[2].toString();
+            let timeDifferenceText = "";
 
-            if (tableEntry[1] != null) {
+            if(tableEntry[1] instanceof TimeInterval) {
                 timeInvervalText = tableEntry[1].toString();
+                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
+
+            } else if(tableEntry[1] instanceof TimeDifference) {
+                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
+
+            } else if(tableEntry[1] instanceof TimeStamp) {
+                timeInvervalText = tableEntry[1].toString();
+                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
             }
 
             tableInnerHTML += `<tr>
@@ -168,13 +220,35 @@ class TimeTableController {
         updateUI();
     }
 
+    timestamp() {
+
+        for(let i = 0; i < this.tableEntries.length; i++) {
+            let tableEntry = this.tableEntries[i];
+
+
+            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen()) {
+                tableEntry[1].close();
+                updateUI();
+                return;
+            }
+        
+        }
+
+        this.addTimeStamp(new TimeStamp());
+    }
+
+    addTimeStamp(timeStamp) {
+        this.tableEntries.push([this.getHightestIndex() + 1, timeStamp]);
+        updateUI();
+    }
+
     addTimeInterval(timeInterval) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeInterval, timeInterval.getTimeDifference()]);
+        this.tableEntries.push([this.getHightestIndex() + 1, timeInterval]);
         updateUI();
     }
 
     addTimeDifference(timeDifference) {
-        this.tableEntries.push([this.getHightestIndex() + 1, null, timeDifference.getTimeDifference()]);
+        this.tableEntries.push([this.getHightestIndex() + 1, timeDifference]);
         updateUI();
     }
 
@@ -193,7 +267,7 @@ class TimeTableController {
         for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
 
-            combinedTime += tableEntry[2].asMinutes();
+            combinedTime += tableEntry[1].getTimeDifference().asMinutes();
         }
 
         return Time.fromMinutes(combinedTime);
@@ -210,17 +284,17 @@ class InfoTableController {
     updateTable() {
         this.table.innerHTML = `<thead>
                                     <tr class="header">
-                                        <td scope="col">kombinierte Zeit</td>
-                                        <td scope="col">restliche Arbeitszeit</td>
-                                        <td scope="col">Uhrzeit zum gehen</td>
+                                        <th scope="col">Summe der Arbeitszeit</th>
+                                        <th scope="col">restliche Arbeitszeit</th>
+                                        <th scope="col">Uhrzeit zum gehen</th>
                                     </tr>
                                 </thead>
                                 
-                                <tbody>
-                                    <tr>
-                                        <td scope="row">${getCombinedTime().toString()}</td>
-                                        <td>${getTimeToWork().toString()}</td>
-                                        <td>${getLeaveTime().toString()}<button onclick="updateUI()">Aktualisieren</button></td>
+                                <tbody class="cells">
+                                    <tr">
+                                        <th scope="row">${getCombinedTime().toString()}</th>
+                                        <th>${getTimeToWork().toString()}</th>
+                                        <th>${getLeaveTime().toString()}</th>
                                     </tr>
                             </tbody>`;                        
     }
@@ -234,6 +308,7 @@ let timeToWork = document.getElementById("timeToWork");
 let breakTime = document.getElementById("breakTime");
 let breakActive = document.getElementById("breakActive");
 let infoTableController = new InfoTableController(document.getElementById("infoTable"));
+let displayTime = document.getElementById("time");
 
 function getCombinedTime() {
     return tableController.combinedTime();
@@ -249,6 +324,10 @@ function getTimeToWork() {
     }
 
     return ttW;
+}
+
+function timestamp() {
+    tableController.timestamp();
 }
 
 function getLeaveTime() {
@@ -271,6 +350,10 @@ function getLeaveTime() {
 
 function deleteFromTable(index) {
     tableController.remove(index);
+}
+
+function updateTime() {
+    displayTime.innerText = currentTime().toString();
 }
 
 function replaceByCurrentTime(timeFieldID) {
@@ -317,6 +400,7 @@ function addTimeDifference(timeFieldID) {
 function updateUI() {
     tableController.updateTable();
     infoTableController.updateTable();
+    updateTime();
 }
 
 
@@ -350,6 +434,7 @@ function onLoad() {
     updateUI();
 }
 
+//IDEEN: feld für plus zeit, Zug
 
 
 onLoad();

@@ -22,6 +22,12 @@ tr:nth-child(even) {
 
 .header {
     font-weight: bold;
+    font-size: 19px;
+}
+
+.cells {
+    font-weight: normal;
+    color: darkgreen;
 }
 
 span {
@@ -60,16 +66,41 @@ button {
     flex-flow: row;
 }
 
+
+.vcenter2 {
+    position: relative;
+    vertical-align: middle;
+}
+
+.vcenter3 {
+    position: relative;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .contollItem {
     padding: 15px;
     margin: 2px;
     border: 1px solid #D4D4D4;
     border-radius: 30px;
     width: 200px;
+    min-width: 110px;
     text-align: center;
 }
 
 
 .addButton {
     margin-top: 25px;
+}
+
+.centeredDiv {
+    width: 100%;
+    text-align: center;
+}
+
+#time {
+    padding: 6px;
+    border: 1px solid #D4D4D4;
+    border-radius: 15px;
+    font-size: x-large;
 }
