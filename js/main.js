@@ -287,6 +287,8 @@ class InfoTableController {
                                         <th scope="col">Summe der Arbeitszeit</th>
                                         <th scope="col">restliche Arbeitszeit</th>
                                         <th scope="col">Uhrzeit zum gehen</th>
+                                        <th scope="col">theoretisch frühste Uhrzeit zum gehen</th>
+                                        <th scope="col">nächster Zug</th>
                                     </tr>
                                 </thead>
                                 
@@ -295,6 +297,8 @@ class InfoTableController {
                                         <th scope="row">${getCombinedTime().toString()}</th>
                                         <th>${getTimeToWork().toString()}</th>
                                         <th>${getLeaveTime().toString()}</th>
+                                        <th>12:34</th>
+                                        <th>${getNextTrain().toString()}</th>
                                     </tr>
                             </tbody>`;                        
     }
@@ -309,6 +313,9 @@ let breakTime = document.getElementById("breakTime");
 let breakActive = document.getElementById("breakActive");
 let infoTableController = new InfoTableController(document.getElementById("infoTable"));
 let displayTime = document.getElementById("time");
+let trainStartTime = document.getElementById("train_startTime");
+let trainEvery = document.getElementById("train_every");
+let trainWalkTime = document.getElementById("train_walktime");
 
 function getCombinedTime() {
     return tableController.combinedTime();
@@ -346,6 +353,37 @@ function getLeaveTime() {
     leaveTime.perfromModulo();
 
     return leaveTime;
+}
+
+function getNextTrain() {
+    if(trainStartTime.value == '' || trainEvery.value == '') {
+        let returnTime = new Time(0, 0);
+        returnTime.toString = function toString() {
+            return "-"
+        };
+
+        return returnTime;
+    }
+
+    let walkTime;
+
+    if(trainWalkTime.value == '') {
+        walkTime = 0;
+    } else {
+        walkTime = Time.fromMinutes(trainWalkTime.value);
+    }
+
+    let startTime = Time.fromString(trainStartTime.value).asMinutes();
+    let every = Time.fromString(trainEvery.value).asMinutes();
+    let currentTimeVar = currentTime().asMinutes();
+    let counter = startTime;
+
+
+    while(counter < (currentTimeVar + walkTime)) {
+        counter += every;
+    }
+
+    return Time.fromMinutes(counter);
 }
 
 function deleteFromTable(index) {
@@ -398,10 +436,11 @@ function addTimeDifference(timeFieldID) {
 }
 
 function updateUI() {
+    updateTime();
     tableController.updateTable();
     infoTableController.updateTable();
-    updateTime();
 }
+
 
 
 //DATA TO SAVE
@@ -412,7 +451,9 @@ function updateUI() {
 
 function loadFromLocalStorage() {
     timeToWork.value = "08:12";
-    breakTime.value = "01:00";
+    breakTime.value = "00:45";
+
+
 
 
     if(currentTime().hours < 13) {
@@ -429,6 +470,13 @@ function onLoad() {
         updateUI();
     });
     
+    trainStartTime.addEventListener("input", function(e) {
+        updateUI();
+    });
+
+    trainEvery.addEventListener("input", function(e) {
+        updateUI();
+    });
 
     loadFromLocalStorage();
     updateUI();
