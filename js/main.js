@@ -286,8 +286,8 @@ class InfoTableController {
                                     <tr class="header">
                                         <th scope="col">Summe der Arbeitszeit</th>
                                         <th scope="col">restliche Arbeitszeit</th>
-                                        <th scope="col">Uhrzeit zum gehen</th>
-                                        <th scope="col">theoretisch frühste Uhrzeit zum gehen</th>
+                                        <th scope="col">Uhrzeit zum gehen <br/> <input type="checkbox">Nutze überstunden</input></th>
+                                        <th scope="col">Aufbrechzeit um Zug zu erreichen</th>
                                         <th scope="col">nächster Zug</th>
                                     </tr>
                                 </thead>
@@ -355,7 +355,8 @@ function getLeaveTime() {
     return leaveTime;
 }
 
-function getNextTrain() {
+
+function temp() {
     if(trainStartTime.value == '' || trainEvery.value == '') {
         let returnTime = new Time(0, 0);
         returnTime.toString = function toString() {
@@ -370,7 +371,7 @@ function getNextTrain() {
     if(trainWalkTime.value == '') {
         walkTime = 0;
     } else {
-        walkTime = Time.fromMinutes(trainWalkTime.value);
+        walkTime = Time.fromString(trainWalkTime.value).asMinutes();
     }
 
     let startTime = Time.fromString(trainStartTime.value).asMinutes();
@@ -380,6 +381,29 @@ function getNextTrain() {
 
 
     while(counter < (currentTimeVar + walkTime)) {
+        counter += every;
+    }
+
+    return Time.fromMinutes(counter);
+}
+
+function getNextTrain() {
+    if(trainStartTime.value == '' || trainEvery.value == '') {
+        let returnTime = new Time(0, 0);
+        returnTime.toString = function toString() {
+            return "-"
+        };
+
+        return returnTime;
+    }
+
+    let startTime = Time.fromString(trainStartTime.value).asMinutes();
+    let every = Time.fromString(trainEvery.value).asMinutes();
+    let currentTimeVar = currentTime().asMinutes();
+    let counter = startTime;
+
+
+    while(counter < currentTimeVar) {
         counter += every;
     }
 
@@ -452,7 +476,9 @@ function updateUI() {
 function loadFromLocalStorage() {
     timeToWork.value = "08:12";
     breakTime.value = "00:45";
-
+    trainStartTime.value = "00:04";
+    trainEvery.value = "00:30";
+    trainWalkTime.value = "00:15";
 
 
 
