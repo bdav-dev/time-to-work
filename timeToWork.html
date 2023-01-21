@@ -2,23 +2,24 @@
 <html>
 
 <head>
-    <title>title_ttW</title>
+    <title>Time to Work - Arbeitszeitrechner</title>
     <meta charset='utf-16'>
     <link rel='stylesheet' type='text/css' href='css/main.css'>
 </head>
 
 <body>
 
-    <div style="width: 100%; text-align: center;">
+    <div class="title">
         <h1><u>Arbeitszeitrechner</u></h1>
     </div>
 
 
 
-    <div class="centeredDiv">
-        <span id="time"></span>
+    <div class="centered">
+        <span id="time" class="neumorphic_small"></span>
         <br />
-        <button style="margin-top: 10px;" onclick="updateUI()">Daten aktualisieren</button>
+        <br />
+        <button class="neumorphicButton_medium" onclick="updateUI()">Daten aktualisieren</button>
     </div>
 
 
@@ -26,79 +27,111 @@
     <br />
     <br />
 
-    <div class="flexContainer">
+    <div class="horizontalFlexContainer">
 
-        <div class="flexFlow contollItem">
-            <p class="title">Zeitstempel</p>
-            <br />
-            <button class="addButton" onclick="timestamp()">Zeitstempel erfassen</button>
-        </div>
+        
 
-        <div class="flexFlow contollItem">
+        <div class="neumorphic_medium">
+            
+            <div class="controllElementTitle">Zeitstempel</div>
 
-            <p class="title">Zeitintervall</p>
-            <br />
-            <span>von:</span>
-            <input type="time" id="interval_from"></input>
-            <button onclick="replaceByCurrentTime('interval_from')">akt. Zeit</button>
-            <br />
-
-            <span>bis:</span>
-            <input type="time" id="interval_to"></input>
-            <button onclick="replaceByCurrentTime('interval_to')">akt. Zeit</button>
-            <br />
-            <button class="addButton" onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
+            <div class="controllElementContent">
+                <button class="neumorphicButton_medium" onclick="timestamp()">Zeitstempel erfassen</button>
+            </div>
 
         </div>
 
+        <div class="neumorphic_medium">
 
-        <div class="flexFlow contollItem">
-            <p class="title">Zeitdifferenz</p>
-            <br />
-            <input type="time" id="difference"></input>
-            <br />
-            <button class="addButton" onclick="addTimeDifference('difference')">Hinzufügen</button>
-        </div>
+            <div class="controllElementTitle">Zeitintervall</div>
 
+            <div class="controllElementContent">
 
-        <div class="flexFlow contollItem">
-            <p class="title">Einstellungen</p>
-            <br />
-            Arbeitszeit:<input type="time" id="timeToWork"></input>
+                <div>
+                    <span>von:</span>
+                    <input type="time" id="interval_from"></input>
+                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_from')">akt. Zeit</button>
+                </div>
 
-            <br/>
+                <div>
+                    <span>bis:</span>
+                    <input type="time" id="interval_to"></input>
+                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_to')">akt. Zeit</button>
+                </div>
 
-            Überstunden: <input type="time" id="overtime"></input>
+                <div>
+                    <button class="neumorphicButton_medium" onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
+                </div>
 
-            <table>
-                <tr>
-                    <td style="border: none; text-align: right;">
-                        <input class="vcenter2" type="checkbox" id="breakActive" onclick="updateUI()"></input>
-                    </td>
-
-                    <td style="border: none; text-align: left;">
-                        Rechne Pause von
-                        <input type="time" id="breakTime"></input>
-                        ein
-                    </td>
-                </tr>
-            </table>
+            </div>    
             
         </div>
 
-        <div class="flexFlow contollItem">
-            <p class="title">Zugeinstellungen</p>
+
+        <div class="neumorphic_medium">
+
+            <div class="controllElementTitle">Zeitdifferenz</div>
             
-            Startzeitpunkt: <input type="time" id="train_startTime"></input>
-            <br />
+            <div class="controllElementContent">
 
-            jede: <input type="time" id="train_every"></input>
-            <br />
+                <input type="time" id="difference"></input>
+            
+                <button class="neumorphicButton_medium" onclick="addTimeDifference('difference')">Hinzufügen</button>
 
-            <br/>
+            </div>
 
-            Zeit Arbeitsplatz -> Bahnhof: <input type="time" id="train_walktime"></input>
-            <br />
+        </div>
+
+
+        <div class="neumorphic_medium">
+            
+            <div class="controllElementTitle">Einstellungen</div>
+            
+            <div class="controllElementContent">
+                <div>
+                    Arbeitszeit: <input type="time" id="timeToWork"></input>
+                </div>
+
+                <div>
+                    Überstunden: <input type="time" id="overtime"></input>
+                </div>
+
+
+                <div>
+                    <table>
+                        <tr>
+                            <td style="border: none; text-align: right;">
+                                <input type="checkbox" id="breakActive" onclick="updateUI()"></input>
+                            </td>
+        
+                            <td style="border: none; text-align: left;">
+                                Rechne Pause von <br/>
+                                <input type="time" id="breakTime"></input> ein
+                            </td>
+                        </tr>
+                    </table>       
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="neumorphic_medium">
+            
+            <div class="controllElementTitle">Zugeinstellungen</div>
+            
+            <div class="controllElementContent">
+                <div class="centered">
+                    Startzeitpunkt: <input type="time" id="train_startTime"></input>
+                    <br/>
+                    jede: <input type="time" id="train_every"></input>
+                </div>
+
+                <div>
+                    Laufzeit: <input type="time" id="train_walktime"></input>
+                </div>
+
+            </div>
 
         </div>
 
@@ -110,7 +143,7 @@
     <br />
     <br />
 
-    <table id="timeTable"></table>
+    <table id="timeTable" class="neumorphic_medium"></table>
 
     <br />
     <br />

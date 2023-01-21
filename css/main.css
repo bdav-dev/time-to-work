@@ -1,6 +1,78 @@
 body {
-    font-family: 'Bahnschrift';
+    font-family: 'Cascadia Code';
+    background: #ecf0f3;
+    margin: 20px;
 }
+
+.title {
+    width: 100%;
+    text-align: center;
+}
+
+.neumorphic_medium {
+    margin: 10px;
+    padding: 25px 25px 25px 25px;
+    border-radius: 40px;
+    min-width: 230px;
+    background: #ecf0f3;
+    box-shadow: 13px 13px 20px #cbced1,
+                -13px -13px 20px #ffffff;
+}
+.neumorphic_small {
+    padding: 10px 10px 10px 10px;
+    border-radius: 20px;
+    background: #ecf0f3;
+    box-shadow: 5px 5px 8px -1px #cbced1,
+                -5px -5px 8px -1px #ffffff;
+}
+
+.neumorphicButton_medium {
+    font-size: 16px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 20px;
+    border: none;
+    /*background: #ecf0f3;*/
+    
+    background: radial-gradient();
+
+    box-shadow: 5px 5px 10px #cbced1,
+                -5px -5px 10px #ffffff;
+}
+
+.neumorphicButton_medium:active {
+    box-shadow: inset 6px 6px 7px #cbced1,
+                inset -6px -6px 7px #ffffff;
+}
+
+.neumorphicButton_small {
+    font-size: 12px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 10px;
+    border: none;
+    /*background: #ecf0f3;*/
+    
+    background: radial-gradient();
+
+    box-shadow: 2px 2px 4px #cbced1,
+                -2px -2px 4px #ffffff;
+}
+
+.neumorphicButton_small:active {
+    box-shadow: inset 2px 2px 4px #cbced1,
+                inset -2px -2px 4px #ffffff;
+}
+
+.controllElementTitle {
+    font-size: larger;
+    font-weight: bold;
+    text-decoration: underline 2px;
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
 
 thead {
     font-size: large;
@@ -12,7 +84,7 @@ table {
 }
 
 td, th {
-    border: 1px solid #D4D4D4;
+    /*border: 1px solid #D4D4D4;*/
     padding: 8px;
 }
 
@@ -30,16 +102,8 @@ tr:nth-child(even) {
     color: darkgreen;
 }
 
-span {
-    margin: 4px;
-}
-
-input {
-    margin: 4px;
-}
-
 button {
-    margin: 4px;
+    font-family: 'Cascadia Code';
 }
 
 .title {
@@ -49,58 +113,54 @@ button {
     margin-top: 0px;
 }
 
-.flexContainer {
+.horizontalFlexContainer {
     display: flex;
+    flex-flow: row;
     justify-content: space-between;
 }
 
-.flexContainer::before {
+.controllElementContent {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 150px;
+}
+
+.centerItems {
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+.horizontalFlexContainer::before {
     content: "";
 }
 
-.flexContainer::after {
+.horizontalFlexContainer::after {
     content: "";
 }
 
-.flexFlow {
-    flex-flow: row;
+.controllElementContent::before {
+    content: "";
 }
 
-
-.vcenter2 {
-    position: relative;
-    vertical-align: middle;
+.controllElementContent::after {
+    content: "";
 }
 
-.vcenter3 {
-    position: relative;
-    vertical-align: middle;
-    display: inline-block;
-}
-
-.contollItem {
-    padding: 15px;
-    margin: 2px;
-    border: 1px solid #D4D4D4;
-    border-radius: 30px;
-    width: 200px;
-    min-width: 110px;
-    text-align: center;
-}
-
-
-.addButton {
-    margin-top: 25px;
-}
-
-.centeredDiv {
+.centered {
     width: 100%;
     text-align: center;
 }
 
+input {
+    margin: 3px;
+}
+
 #time {
-    padding: 6px;
-    border: 1px solid #D4D4D4;
-    border-radius: 15px;
+    /*padding: 6px;*/
     font-size: x-large;
+    
 }

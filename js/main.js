@@ -206,7 +206,7 @@ class TimeTableController {
             tableInnerHTML += `<tr>
                                <td scope="row">${timeInvervalText}</td>
                                <td>${timeDifferenceText}</td>
-                               <td><Button onClick="deleteFromTable(${i})">Löschen</Button></td>
+                               <td><button class="neumorphicButton_small" onClick="deleteFromTable(${i})">Löschen</button></td>
                                </tr>`;
         }
 
