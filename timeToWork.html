@@ -13,10 +13,10 @@
         <h1><u>Arbeitszeitrechner</u></h1>
     </div>
 
-    
-    <button class="topLeft neumorphicButton_small" onclick="toggleLightDarkMode()">dunkler Modus</button>
-    
-    
+
+    <button id="toggleLightDarkModeButton"class="topLeft neumorphicButton_small" onclick="toggleLightDarkMode()">dunkler Modus</button>
+
+
 
 
     <div class="centered">
@@ -33,10 +33,8 @@
 
     <div class="horizontalFlexContainer">
 
-        
-
         <div class="neumorphic_medium">
-            
+
             <div class="controllElementTitle">Zeitstempel</div>
 
             <div class="controllElementContent">
@@ -54,32 +52,35 @@
                 <div>
                     <span>von:</span>
                     <input type="time" id="interval_from"></input>
-                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_from')">akt. Zeit</button>
+                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_from')">akt.
+                        Zeit</button>
                 </div>
 
                 <div>
                     <span>bis:</span>
                     <input type="time" id="interval_to"></input>
-                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_to')">akt. Zeit</button>
+                    <button class="neumorphicButton_small" onclick="replaceByCurrentTime('interval_to')">akt.
+                        Zeit</button>
                 </div>
 
                 <div>
-                    <button class="neumorphicButton_medium" onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
+                    <button class="neumorphicButton_medium"
+                        onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
                 </div>
 
-            </div>    
-            
+            </div>
+
         </div>
 
 
         <div class="neumorphic_medium">
 
             <div class="controllElementTitle">Zeitdifferenz</div>
-            
+
             <div class="controllElementContent">
 
                 <input type="time" id="difference"></input>
-            
+
                 <button class="neumorphicButton_medium" onclick="addTimeDifference('difference')">Hinzufügen</button>
 
             </div>
@@ -88,9 +89,9 @@
 
 
         <div class="neumorphic_medium">
-            
+
             <div class="controllElementTitle">Einstellungen</div>
-            
+
             <div class="controllElementContent">
                 <div>
                     Arbeitszeit: <input type="time" id="timeToWork"></input>
@@ -102,18 +103,18 @@
 
 
                 <div>
-                    <table>
+                    <table class="fullWidth">
                         <tr>
                             <td style="border: none; text-align: right;">
-                                <input type="checkbox" id="breakActive" onclick="updateUI()"></input>
+                                <div class="tableCell"><input type="checkbox" id="breakActive" onclick="updateUI()"></input></div>
                             </td>
-        
+
                             <td style="border: none; text-align: left;">
-                                Rechne Pause von <br/>
-                                <input type="time" id="breakTime"></input> ein
+                                <div class="tableCell">Rechne Pause von <br/>
+                                <input type="time" id="breakTime"></input> ein</div>
                             </td>
                         </tr>
-                    </table>       
+                    </table>
                 </div>
 
             </div>
@@ -121,13 +122,13 @@
         </div>
 
         <div class="neumorphic_medium">
-            
-            <div class="controllElementTitle">Zugeinstellungen</div>
-            
+
+            <div class="controllElementTitle">Zug</div>
+
             <div class="controllElementContent">
                 <div class="centered">
                     Startzeitpunkt: <input type="time" id="train_startTime"></input>
-                    <br/>
+                    <br />
                     jede: <input type="time" id="train_every"></input>
                 </div>
 
@@ -147,15 +148,14 @@
     <br />
     <br />
 
-    <table id="timeTable" class="neumorphic_medium"></table>
+    <table id="timeTable" class="neumorphic_table"></table>
 
     <br />
     <br />
     <br />
     <br />
 
-    <table id="infoTable" class="neumorphic_medium"></table>
-
+    <table id="infoTable" class="neumorphic_table"></table>
 
     <script src='js/main.js'></script>
 </body>

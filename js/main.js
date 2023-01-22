@@ -170,17 +170,17 @@ class TimeTableController {
         }
 
         let tableInnerHTML = `<thead>
-                                <tr class="header">
-                                    <td scope="col">Zeitintervall</td>
-                                    <td scope="col">Zeitdifferenz</td>
-                                    <td scope="col">Aktionen</td>
+                                <tr>
+                                    <td scope="col"><div class="tableHeadline">Zeitintervall</div></td>
+                                    <td scope="col"><div class="tableHeadline">Zeitdifferenz</div></td>
+                                    <td scope="col"><div class="tableHeadline">Aktionen</div></td>
                                 </tr>
                               </thead>
-                              <tbody class="cells">`;
+                              <tbody class="tableCell">`;
 
         if(this.tableEntries.length == 0) {
             tableInnerHTML += `<tr>
-                                <th colspan="3" scope="row">[Tabelle leer]</th>
+                                <th colspan="3" scope="row"><div class="tableCell">[Tabelle leer]</div></th>
                                </tr>`;
         }
 
@@ -204,9 +204,9 @@ class TimeTableController {
             }
 
             tableInnerHTML += `<tr>
-                               <td scope="row">${timeInvervalText}</td>
-                               <td>${timeDifferenceText}</td>
-                               <td><button class="neumorphicButton_small" onClick="deleteFromTable(${i})">Löschen</button></td>
+                                <td scope="row"><div class="tableCell">${timeInvervalText}</div></td>
+                                <td><div class="tableCell">${timeDifferenceText}</div></td>
+                                <td><div class="tableCell"><button class="neumorphicButton_small" onClick="deleteFromTable(${i})">Löschen</button></div></td>
                                </tr>`;
         }
 
@@ -283,24 +283,24 @@ class InfoTableController {
 
     updateTable() {
         this.table.innerHTML = `<thead>
-                                    <tr class="header">
-                                        <th scope="col">Summe der Arbeitszeit</th>
-                                        <th scope="col">restliche Arbeitszeit</th>
-                                        <th scope="col">Uhrzeit zum gehen <br/> <input type="checkbox">Nutze überstunden</input></th>
-                                        <th scope="col">Aufbrechzeit um Zug zu erreichen</th>
-                                        <th scope="col">nächster Zug</th>
+                                    <tr class="tableHeader">
+                                        <th scope="col"><div class="tableHeadline">Summe der Arbeitszeit</div></th>
+                                        <th scope="col"><div class="tableHeadline">restliche Arbeitszeit</div></th>
+                                        <th scope="col"><div class="tableHeadline">Uhrzeit zum gehen <br/> <span class="notBold"><input type="checkbox">Nutze überstunden</input></span></div></th>
+                                        <th scope="col"><div class="tableHeadline">Aufbrechzeit um Zug zu erreichen</div></th>
+                                        <th scope="col"><div class="tableHeadline">nächster Zug</div></th>
                                     </tr>
                                 </thead>
                                 
-                                <tbody class="cells">
-                                    <tr">
-                                        <th scope="row">${getCombinedTime().toString()}</th>
-                                        <th>${getTimeToWork().toString()}</th>
-                                        <th>${getLeaveTime().toString()}</th>
-                                        <th>12:34</th>
-                                        <th>${getNextTrain().toString()}</th>
+                                <tbody class="tableCell">
+                                    <tr>
+                                        <th scope="row"><div class="tableCell">${getCombinedTime().toString()}</div></th>
+                                        <th><div class="tableCell">${getTimeToWork().toString()}</div></th>
+                                        <th><div class="tableCell">${getLeaveTime().toString()}</div></th>
+                                        <th><div class="tableCell">12:34</div></th>
+                                        <th><div class="tableCell">${getNextTrain().toString()}</div></th>
                                     </tr>
-                            </tbody>`;                        
+                                </tbody>`;                        
     }
 
 }
@@ -316,6 +316,7 @@ let displayTime = document.getElementById("time");
 let trainStartTime = document.getElementById("train_startTime");
 let trainEvery = document.getElementById("train_every");
 let trainWalkTime = document.getElementById("train_walktime");
+let toggleLightDarkModeButton = document.getElementById("toggleLightDarkModeButton");
 
 let root = document.querySelector(':root');
 
@@ -330,6 +331,7 @@ function lightMode() {
     root.style.setProperty('--lightShadowColor', computedStyle.getPropertyValue('--light_lightShadowColor'));
     root.style.setProperty('--darkShadowColor', computedStyle.getPropertyValue('--light_darkShadowColor'));
 
+    toggleLightDarkModeButton.innerText = "dunkler Modus";
     isLightMode = true;
 }
 
@@ -346,6 +348,7 @@ function darkMode() {
     root.style.setProperty('--anti_lightShadowColor', computedStyle.getPropertyValue('--light_lightShadowColor'));
     root.style.setProperty('--anti_darkShadowColor', computedStyle.getPropertyValue('--light_darkShadowColor'));
 
+    toggleLightDarkModeButton.innerText = "heller Modus";
     isLightMode = false;
 }
 

@@ -1,6 +1,6 @@
 :root {
     --light_backgroundColor: rgb(236, 240, 243);
-    --light_textColor: rgb(123, 128, 140);
+    --light_textColor: #3B3D43;
     --light_lightShadowColor: rgb(255, 255, 255);
     --light_darkShadowColor: rgb(209, 217, 230);
 
@@ -13,6 +13,21 @@
     --textColor: var(--light_textColor);
     --lightShadowColor: var(--light_lightShadowColor);
     --darkShadowColor: var(--light_darkShadowColor);
+
+
+    --shadowDistance_neumorphic_medium: 13px;
+    --shadowBlur_neumorphic_medium: 20px;
+
+    --shadowDistance_neumorphic_small: 5px;
+    --shadowBlur_neumorphic_small: 8px;
+
+
+    --shadowDistance_neumorphicButton_medium: 5px;
+    --shadowBlur_neumorphicButton_medium: 10px;
+
+    --shadowDistance_neumorphicButton_small: 2px;
+    --shadowBlur_neumorphicButton_small: 4px;
+
 }
 
 body {
@@ -33,15 +48,27 @@ body {
     border-radius: 40px;
     min-width: 230px;
     background: var(--backgroundColor);
-    box-shadow: 13px 13px 20px var(--darkShadowColor),
-                -13px -13px 20px var(--lightShadowColor);
+    box-shadow: var(--shadowDistance_neumorphic_medium) var(--shadowDistance_neumorphic_medium) var(--shadowBlur_neumorphic_medium) var(--darkShadowColor),
+        calc(-1 * var(--shadowDistance_neumorphic_medium)) calc(-1 * var(--shadowDistance_neumorphic_medium)) var(--shadowBlur_neumorphic_medium) var(--lightShadowColor);
 }
+
+.neumorphic_table {
+    margin: 10px;
+    padding: 25px 25px 25px 25px;
+    border-radius: 20px;
+    min-width: 230px;
+    background: var(--backgroundColor);
+    box-shadow: var(--shadowDistance_neumorphic_medium) var(--shadowDistance_neumorphic_medium) var(--shadowBlur_neumorphic_medium) var(--darkShadowColor),
+        calc(-1 * var(--shadowDistance_neumorphic_medium)) calc(-1 * var(--shadowDistance_neumorphic_medium)) var(--shadowBlur_neumorphic_medium) var(--lightShadowColor);
+
+}
+
 .neumorphic_small {
     padding: 10px 10px 10px 10px;
     border-radius: 20px;
     background: var(--backgroundColor);
-    box-shadow: 5px 5px 8px -1px var(--darkShadowColor),
-                -5px -5px 8px -1px var(--lightShadowColor);
+    box-shadow: var(--shadowDistance_neumorphic_small) var(--shadowDistance_neumorphic_small) var(--shadowBlur_neumorphic_small) var(--darkShadowColor),
+        calc(-1 * var(--shadowDistance_neumorphic_small)) calc(-1 * var(--shadowDistance_neumorphic_small)) var(--shadowBlur_neumorphic_small) var(--lightShadowColor);
 }
 
 .neumorphicButton_medium {
@@ -50,16 +77,18 @@ body {
     margin: 10px;
     border-radius: 20px;
     border: none;
-    
+
     background: var(--backgroundColor);
 
-    box-shadow: 5px 5px 10px var(--darkShadowColor),
-                -5px -5px 10px var(--lightShadowColor);
+    box-shadow: var(--shadowDistance_neumorphicButton_medium) var(--shadowDistance_neumorphicButton_medium) var(--shadowBlur_neumorphicButton_medium) var(--darkShadowColor),
+        calc(-1 * var(--shadowDistance_neumorphicButton_medium)) calc(-1 * var(--shadowDistance_neumorphicButton_medium)) var(--shadowBlur_neumorphicButton_medium) var(--lightShadowColor);
 }
 
+
 .neumorphicButton_medium:active {
-    box-shadow: inset 6px 6px 7px var(--darkShadowColor),
-                inset -6px -6px 7px var(--lightShadowColor);
+    box-shadow: inset var(--shadowDistance_neumorphicButton_medium) var(--shadowDistance_neumorphicButton_medium) var(--shadowBlur_neumorphicButton_medium) var(--darkShadowColor),
+        inset calc(-1 * var(--shadowDistance_neumorphicButton_medium)) calc(-1 * var(--shadowDistance_neumorphicButton_medium)) var(--shadowBlur_neumorphicButton_medium) var(--lightShadowColor);
+
 }
 
 .neumorphicButton_small {
@@ -68,21 +97,41 @@ body {
     margin: 5px;
     border-radius: 10px;
     border: none;
-    /*background: #ecf0f3;*/
 
     background: var(--backgroundColor);
 
-    box-shadow: 2px 2px 4px var(--darkShadowColor),
-                -2px -2px 4px var(--lightShadowColor);
+    box-shadow: var(--shadowDistance_neumorphicButton_small) var(--shadowDistance_neumorphicButton_small) var(--shadowBlur_neumorphicButton_small) var(--darkShadowColor),
+        calc(-1 * var(--shadowDistance_neumorphicButton_small)) calc(-1 * var(--shadowDistance_neumorphicButton_small)) var(--shadowBlur_neumorphicButton_small) var(--lightShadowColor);
 }
 
 .neumorphicButton_small:active {
-    box-shadow: inset 2px 2px 4px var(--darkShadowColor),
-                inset -2px -2px 4px var(--lightShadowColor);
+    box-shadow: inset var(--shadowDistance_neumorphicButton_small) var(--shadowDistance_neumorphicButton_small) var(--shadowBlur_neumorphicButton_small) var(--darkShadowColor),
+        inset calc(-1 * var(--shadowDistance_neumorphicButton_small)) calc(-1 * var(--shadowDistance_neumorphicButton_small)) var(--shadowBlur_neumorphicButton_small) var(--lightShadowColor);
+
 }
 
 
+input[type="time"] {
+    padding: 6px;
+    margin: 4px;
+    background: var(--backgroundColor);
+    color: var(--textColor);
+    border: none;
+    border-radius: 20px;
 
+    box-shadow: inset 2px 2px 4px var(--darkShadowColor),
+        inset -2px -2px 4px var(--lightShadowColor);
+}
+
+input[type="time"]::-webkit-calender-picker-indicator {
+    filter: invert(100%);
+
+}
+
+input[type="checkbox"] {
+    /*TODO*/
+    color: var(--backgroundColor);
+}
 
 
 .topLeft {
@@ -107,49 +156,51 @@ thead {
 
 table {
     border-collapse: collapse;
+    width: 99%;
+}
+
+.fullWidth {
     width: 100%;
 }
 
-input[type="time"] {
-    padding: 6px;
-    margin: 3px;
-    background: var(--backgroundColor);
-    color: var(--textColor);
-    border: none;
-    border-radius: 20px;
 
-    box-shadow: inset 2px 2px 4px var(--darkShadowColor),
-                inset -2px -2px 4px var(--lightShadowColor);
+table td,
+table th {
+    border: 1px solid var(--darkShadowColor);
 }
 
-input[type="time"]::-webkit-calender-picker-indicator {
-    filter: invert(100%);
-
+table thead tr:first-child td {
+    border-top: 0;
 }
 
-input[type="checkbox"] {
-    /*TODO*/
-    color: var(--backgroundColor);
+table thead tr:first-child th {
+    border-top: 0;
 }
 
-
-td, th {
-    /*border: 1px solid #D4D4D4;*/
-    padding: 8px;
+table tbody tr:last-child td,
+table tbody tr:last-child th{
+    border-bottom: 0;
 }
 
-tr:nth-child(even) {
-    background-color: #EFEFEF;
+table tr th:first-child,
+table tr td:first-child {
+    border-left: 0;
 }
 
-.header {
+table tr th:last-child,
+table tr td:last-child {
+    border-right: 0;
+}
+
+.tableHeadline {
     font-weight: bold;
     font-size: 19px;
+    margin: 10px;
 }
 
-.cells {
+.tableCell {
     font-weight: normal;
-    color: darkgreen;
+    margin: 7px;
 }
 
 button {
@@ -210,5 +261,8 @@ button {
 #time {
     /*padding: 6px;*/
     font-size: x-large;
-    
+}
+
+.notBold {
+    font-weight: normal;
 }
