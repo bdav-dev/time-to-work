@@ -317,6 +317,47 @@ let trainStartTime = document.getElementById("train_startTime");
 let trainEvery = document.getElementById("train_every");
 let trainWalkTime = document.getElementById("train_walktime");
 
+let root = document.querySelector(':root');
+
+let isLightMode = true;
+
+
+function lightMode() {
+    const computedStyle = getComputedStyle(root);
+
+    root.style.setProperty('--backgroundColor', computedStyle.getPropertyValue('--light_backgroundColor'));
+    root.style.setProperty('--textColor', computedStyle.getPropertyValue('--light_textColor'));
+    root.style.setProperty('--lightShadowColor', computedStyle.getPropertyValue('--light_lightShadowColor'));
+    root.style.setProperty('--darkShadowColor', computedStyle.getPropertyValue('--light_darkShadowColor'));
+
+    isLightMode = true;
+}
+
+function darkMode() {
+    const computedStyle = getComputedStyle(root);
+
+    root.style.setProperty('--backgroundColor', computedStyle.getPropertyValue('--dark_backgroundColor'));
+    root.style.setProperty('--textColor', computedStyle.getPropertyValue('--dark_textColor'));
+    root.style.setProperty('--lightShadowColor', computedStyle.getPropertyValue('--dark_lightShadowColor'));
+    root.style.setProperty('--darkShadowColor', computedStyle.getPropertyValue('--dark_darkShadowColor'));
+
+    root.style.setProperty('--anti_backgroundColor', computedStyle.getPropertyValue('--light_backgroundColor'));
+    root.style.setProperty('--anti_textColor', computedStyle.getPropertyValue('--light_textColor'));
+    root.style.setProperty('--anti_lightShadowColor', computedStyle.getPropertyValue('--light_lightShadowColor'));
+    root.style.setProperty('--anti_darkShadowColor', computedStyle.getPropertyValue('--light_darkShadowColor'));
+
+    isLightMode = false;
+}
+
+function toggleLightDarkMode() {
+    if(isLightMode) {
+        darkMode();
+    } else {
+        lightMode();
+    }
+}
+
+
 function getCombinedTime() {
     return tableController.combinedTime();
 }

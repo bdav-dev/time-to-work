@@ -1,6 +1,24 @@
+:root {
+    --light_backgroundColor: rgb(236, 240, 243);
+    --light_textColor: rgb(123, 128, 140);
+    --light_lightShadowColor: rgb(255, 255, 255);
+    --light_darkShadowColor: rgb(209, 217, 230);
+
+    --dark_backgroundColor: rgb(48, 49, 53);
+    --dark_textColor: rgb(232, 232, 232);
+    --dark_lightShadowColor: rgb(62, 63, 70);
+    --dark_darkShadowColor: rgb(35, 35, 35);
+
+    --backgroundColor: var(--light_backgroundColor);
+    --textColor: var(--light_textColor);
+    --lightShadowColor: var(--light_lightShadowColor);
+    --darkShadowColor: var(--light_darkShadowColor);
+}
+
 body {
     font-family: 'Cascadia Code';
-    background: #ecf0f3;
+    background: var(--backgroundColor);
+    color: var(--textColor);
     margin: 20px;
 }
 
@@ -14,16 +32,16 @@ body {
     padding: 25px 25px 25px 25px;
     border-radius: 40px;
     min-width: 230px;
-    background: #ecf0f3;
-    box-shadow: 13px 13px 20px #cbced1,
-                -13px -13px 20px #ffffff;
+    background: var(--backgroundColor);
+    box-shadow: 13px 13px 20px var(--darkShadowColor),
+                -13px -13px 20px var(--lightShadowColor);
 }
 .neumorphic_small {
     padding: 10px 10px 10px 10px;
     border-radius: 20px;
-    background: #ecf0f3;
-    box-shadow: 5px 5px 8px -1px #cbced1,
-                -5px -5px 8px -1px #ffffff;
+    background: var(--backgroundColor);
+    box-shadow: 5px 5px 8px -1px var(--darkShadowColor),
+                -5px -5px 8px -1px var(--lightShadowColor);
 }
 
 .neumorphicButton_medium {
@@ -32,17 +50,16 @@ body {
     margin: 10px;
     border-radius: 20px;
     border: none;
-    /*background: #ecf0f3;*/
     
-    background: radial-gradient();
+    background: var(--backgroundColor);
 
-    box-shadow: 5px 5px 10px #cbced1,
-                -5px -5px 10px #ffffff;
+    box-shadow: 5px 5px 10px var(--darkShadowColor),
+                -5px -5px 10px var(--lightShadowColor);
 }
 
 .neumorphicButton_medium:active {
-    box-shadow: inset 6px 6px 7px #cbced1,
-                inset -6px -6px 7px #ffffff;
+    box-shadow: inset 6px 6px 7px var(--darkShadowColor),
+                inset -6px -6px 7px var(--lightShadowColor);
 }
 
 .neumorphicButton_small {
@@ -52,16 +69,26 @@ body {
     border-radius: 10px;
     border: none;
     /*background: #ecf0f3;*/
-    
-    background: radial-gradient();
 
-    box-shadow: 2px 2px 4px #cbced1,
-                -2px -2px 4px #ffffff;
+    background: var(--backgroundColor);
+
+    box-shadow: 2px 2px 4px var(--darkShadowColor),
+                -2px -2px 4px var(--lightShadowColor);
 }
 
 .neumorphicButton_small:active {
-    box-shadow: inset 2px 2px 4px #cbced1,
-                inset -2px -2px 4px #ffffff;
+    box-shadow: inset 2px 2px 4px var(--darkShadowColor),
+                inset -2px -2px 4px var(--lightShadowColor);
+}
+
+
+
+
+
+.topLeft {
+    position: absolute;
+    top: 20px;
+    left: 20px;
 }
 
 .controllElementTitle {
@@ -82,6 +109,29 @@ table {
     border-collapse: collapse;
     width: 100%;
 }
+
+input[type="time"] {
+    padding: 6px;
+    margin: 3px;
+    background: var(--backgroundColor);
+    color: var(--textColor);
+    border: none;
+    border-radius: 20px;
+
+    box-shadow: inset 2px 2px 4px var(--darkShadowColor),
+                inset -2px -2px 4px var(--lightShadowColor);
+}
+
+input[type="time"]::-webkit-calender-picker-indicator {
+    filter: invert(100%);
+
+}
+
+input[type="checkbox"] {
+    /*TODO*/
+    color: var(--backgroundColor);
+}
+
 
 td, th {
     /*border: 1px solid #D4D4D4;*/
@@ -104,6 +154,7 @@ tr:nth-child(even) {
 
 button {
     font-family: 'Cascadia Code';
+    color: var(--textColor);
 }
 
 .title {
@@ -155,9 +206,6 @@ button {
     text-align: center;
 }
 
-input {
-    margin: 3px;
-}
 
 #time {
     /*padding: 6px;*/
