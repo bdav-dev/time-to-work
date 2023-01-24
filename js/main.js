@@ -1,327 +1,23 @@
-class TimeStamp {
-
-    constructor() {
-        this.timeInverval = new TimeInterval(currentTime(), null);
-    }
-
-    getTimeDifference() {
-        if(this.isOpen()) {
-            return TimeDifference.calculateTimeDifference(this.timeInverval.startTime, currentTime());
-        }
-
-        return this.timeInverval.getTimeDifference();
-    }
-
-    close() {
-        this.timeInverval.endTime = currentTime();
-    }
-
-    toString() {
-        if(this.isOpen()) {
-            return this.timeInverval.startTime.toString() + " - ...";
-        }
-        
-        return this.timeInverval.toString();
-    }
-
-    isOpen() {
-        return this.timeInverval.endTime == null;
-    }
-
-}
-
-
-class TimeDifference {
-
-    constructor(timeDifference) {
-        this.timeDifference = timeDifference;
-    }
-
-    getTimeDifference() {
-        return this.timeDifference;
-    }
-
-    toString() {
-        return this.timeDifference.toString();
-    }
-
-    static calculateTimeDifference(startTime, endTime) {
-        return Time.fromMinutes(endTime.asMinutes() - startTime.asMinutes());
-    }
-
-}
-
-
-class TimeInterval {
-
-    constructor(startTime, endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    static fromTimeInterval(timeInterval) {
-        return new TimeInterval(timeInterval.startTime, timeInterval.endTime);
-    }
-
-    isValid() {
-        if (this.startTime.hours > this.endTime.hours) {
-            return false;
-        } else if (this.startTime.hours == this.endTime.hours) {
-            if (this.startTime.minutes > this.endTime.minutes) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    toString() {
-        return this.startTime.toString() + " - " + this.endTime.toString();
-    }
-
-    getTimeDifference() {
-        return TimeDifference.calculateTimeDifference(this.startTime, this.endTime);
-    }
-
-}
-
-class Time {
-
-    constructor(hours, minutes) {
-        this.hours = hours;
-        this.minutes = minutes;
-    }
-
-    static fromTime(time) {
-        return new Time(time.hours, time.minutes);
-    }
-
-    static fromMinutes(minutes) {
-        return new Time(Math.floor(minutes / 60), minutes % 60);
-    }
-
-    static fromString(string) {
-        const seperated = string.split(":");
-        return new Time(parseInt(seperated[0]), parseInt(seperated[1]));
-    }
-
-    isValidTimeOfDay() {
-        if(this.hours < 0 || this.hours > 23) {
-            return false;
-        }
-
-        if(this.minutes < 0 || this.minutes > 59) {
-            return false;
-        }
-
-        return true;
-    }
-
-    perfromModulo() {
-        this.hours = this.hours % 24;
-    }
-
-    toString() {
-        let timeAsString = ""
-
-        if (this.hours.toString().length == 1) {
-            timeAsString += "0" + this.hours.toString();
-        } else {
-            timeAsString += this.hours.toString();
-        }
-
-        timeAsString += ":";
-
-        if (this.minutes.toString().length == 1) {
-            timeAsString += "0" + this.minutes.toString();
-        } else {
-            timeAsString += this.minutes.toString();
-        }
-
-        return timeAsString;
-    }
-
-    asMinutes() {
-        return this.minutes + 60 * this.hours;
-    }
-
-}
-
-
-//table entries structure: [index, item]
-class TimeTableController {
-
-    constructor(tableElement) {
-        this.table = tableElement;
-        this.tableEntries = [];
-    }
-
-    updateTable() {
-        for(let i = 0; i < this.tableEntries.length; i++) {
-            let tableEntry = this.tableEntries[i];
-
-            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen() && i != this.tableEntries.length - 1) {
-                let openTimeStamp = tableEntry[1];
-                this.tableEntries.splice(i, 1);
-                this.tableEntries.push([this.getHightestIndex() + 1, openTimeStamp]);
-                this.updateTable();
-                return;
-            }
-        }
-
-        let tableInnerHTML = `<thead>
-                                <tr>
-                                    <td scope="col"><div class="tableHeadline">Zeitintervall</div></td>
-                                    <td scope="col"><div class="tableHeadline">Zeitdifferenz</div></td>
-                                    <td scope="col"><div class="tableHeadline">Aktionen</div></td>
-                                </tr>
-                              </thead>
-                              <tbody class="tableCell">`;
-
-        if(this.tableEntries.length == 0) {
-            tableInnerHTML += `<tr>
-                                <th colspan="3" scope="row"><div class="tableCell">[Tabelle leer]</div></th>
-                               </tr>`;
-        }
-
-        for(let i = 0; i < this.tableEntries.length; i++) {
-            let tableEntry = this.tableEntries[i];
-            tableEntry[0] = i;
-
-            let timeInvervalText = "";
-            let timeDifferenceText = "";
-
-            if(tableEntry[1] instanceof TimeInterval) {
-                timeInvervalText = tableEntry[1].toString();
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
-
-            } else if(tableEntry[1] instanceof TimeDifference) {
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
-
-            } else if(tableEntry[1] instanceof TimeStamp) {
-                timeInvervalText = tableEntry[1].toString();
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
-            }
-
-            tableInnerHTML += `<tr>
-                                <td scope="row"><div class="tableCell">${timeInvervalText}</div></td>
-                                <td><div class="tableCell">${timeDifferenceText}</div></td>
-                                <td><div class="tableCell"><button class="neumorphicButton_small" onClick="deleteFromTable(${i})">Löschen</button></div></td>
-                               </tr>`;
-        }
-
-        tableInnerHTML += `</tbody>`;
-
-        this.table.innerHTML = tableInnerHTML;
-    }
-
-    remove(index) {
-        this.tableEntries.splice(index, 1);
-        updateUI();
-    }
-
-    timestamp() {
-
-        for(let i = 0; i < this.tableEntries.length; i++) {
-            let tableEntry = this.tableEntries[i];
-
-
-            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen()) {
-                tableEntry[1].close();
-                updateUI();
-                return;
-            }
-        
-        }
-
-        this.addTimeStamp(new TimeStamp());
-    }
-
-    addTimeStamp(timeStamp) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeStamp]);
-        updateUI();
-    }
-
-    addTimeInterval(timeInterval) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeInterval]);
-        updateUI();
-    }
-
-    addTimeDifference(timeDifference) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeDifference]);
-        updateUI();
-    }
-
-    getHightestIndex() {
-        if (this.tableEntries.length == 0) {
-            return 0;
-        }
-
-        let latestEntry = this.tableEntries[this.tableEntries.length - 1];
-        return latestEntry[0];
-    }
-
-    combinedTime() {
-        let combinedTime = 0;
-
-        for (let i = 0; i < this.tableEntries.length; i++) {
-            let tableEntry = this.tableEntries[i];
-
-            combinedTime += tableEntry[1].getTimeDifference().asMinutes();
-        }
-
-        return Time.fromMinutes(combinedTime);
-    }
-
-}
-
-class InfoTableController {
-
-    constructor(infoTable) {
-        this.table = infoTable;
-    }
-
-    updateTable() {
-        this.table.innerHTML = `<thead>
-                                    <tr class="tableHeader">
-                                        <th scope="col"><div class="tableHeadline">Summe der Arbeitszeit</div></th>
-                                        <th scope="col"><div class="tableHeadline">restliche Arbeitszeit</div></th>
-                                        <th scope="col"><div class="tableHeadline">Uhrzeit zum gehen <br/> <span class="notBold"><input type="checkbox">Nutze überstunden</input></span></div></th>
-                                        <th scope="col"><div class="tableHeadline">Aufbrechzeit um Zug zu erreichen</div></th>
-                                        <th scope="col"><div class="tableHeadline">nächster Zug</div></th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody class="tableCell">
-                                    <tr>
-                                        <th scope="row"><div class="tableCell">${getCombinedTime().toString()}</div></th>
-                                        <th><div class="tableCell">${getTimeToWork().toString()}</div></th>
-                                        <th><div class="tableCell">${getLeaveTime().toString()}</div></th>
-                                        <th><div class="tableCell">12:34</div></th>
-                                        <th><div class="tableCell">${getNextTrain().toString()}</div></th>
-                                    </tr>
-                                </tbody>`;                        
-    }
-
-}
-
-
-let tableController = new TimeTableController(document.getElementById("timeTable"));
-let combinedTime = document.getElementById("combinedTime");
-let timeToWork = document.getElementById("timeToWork");
-let breakTime = document.getElementById("breakTime");
-let breakActive = document.getElementById("breakActive");
-let infoTableController = new InfoTableController(document.getElementById("infoTable"));
-let displayTime = document.getElementById("time");
-let trainStartTime = document.getElementById("train_startTime");
-let trainEvery = document.getElementById("train_every");
-let trainWalkTime = document.getElementById("train_walktime");
-let toggleLightDarkModeButton = document.getElementById("toggleLightDarkModeButton");
-
-let root = document.querySelector(':root');
+const tableController = new TimeTableController(document.getElementById("timeTable"));
+const combinedTime = document.getElementById("combinedTime");
+const timeToWork = document.getElementById("timeToWork");
+const breakTime = document.getElementById("breakTime");
+const breakActive = document.getElementById("breakActive");
+const infoTableController = new InfoTableController(document.getElementById("infoTable"));
+const displayTime = document.getElementById("time");
+const trainStartTime = document.getElementById("train_startTime");
+const trainEvery = document.getElementById("train_every");
+const trainWalkTime = document.getElementById("train_walktime");
+const toggleLightDarkModeButton = document.getElementById("toggleLightDarkModeButton");
+const interval_from = document.getElementById("interval_from");
+const interval_to = document.getElementById("interval_to");
+const interval_display = document.getElementById("interval_display");
+const useOvertime = document.getElementById("useOvertime");
+const overtime = document.getElementById("overtime");
+
+const root = document.querySelector(':root');
 
 let isLightMode = true;
-
 
 function lightMode() {
     const computedStyle = getComputedStyle(root);
@@ -343,32 +39,33 @@ function darkMode() {
     root.style.setProperty('--lightShadowColor', computedStyle.getPropertyValue('--dark_lightShadowColor'));
     root.style.setProperty('--darkShadowColor', computedStyle.getPropertyValue('--dark_darkShadowColor'));
 
-    root.style.setProperty('--anti_backgroundColor', computedStyle.getPropertyValue('--light_backgroundColor'));
-    root.style.setProperty('--anti_textColor', computedStyle.getPropertyValue('--light_textColor'));
-    root.style.setProperty('--anti_lightShadowColor', computedStyle.getPropertyValue('--light_lightShadowColor'));
-    root.style.setProperty('--anti_darkShadowColor', computedStyle.getPropertyValue('--light_darkShadowColor'));
-
     toggleLightDarkModeButton.innerText = "heller Modus";
     isLightMode = false;
 }
 
 function toggleLightDarkMode() {
-    if(isLightMode) {
+    if (isLightMode) {
         darkMode();
     } else {
         lightMode();
     }
 }
 
-
 function getCombinedTime() {
     return tableController.combinedTime();
 }
 
 function getTimeToWork() {
-    let ttW = Time.fromMinutes(Time.fromString(timeToWork.value).asMinutes() - getCombinedTime().asMinutes());
     
-    if(!ttW.isValidTimeOfDay()) {
+    let minutes = Time.fromString(timeToWork.value).asMinutes() - getCombinedTime().asMinutes();
+    
+    if(useOvertime.checked && overtime.value != '') {
+        minutes -= Time.fromString(overtime.value).asMinutes();
+    }
+
+    let ttW = Time.fromMinutes(minutes);
+
+    if (!ttW.isValidTimeOfDay()) {
         ttW.toString = function toString() {
             return "-";
         };
@@ -384,11 +81,11 @@ function timestamp() {
 function getLeaveTime() {
     let leaveTime = Time.fromMinutes(currentTime().asMinutes() + getTimeToWork().asMinutes());
 
-    if(breakActive.checked) {
+    if (breakActive.checked && breakTime.value != '') {
         leaveTime = Time.fromMinutes(leaveTime.asMinutes() + Time.fromString(breakTime.value).asMinutes());
     }
 
-    if(!getTimeToWork().isValidTimeOfDay()) {
+    if (!getTimeToWork().isValidTimeOfDay()) {
         leaveTime.toString = function toString() {
             return "-";
         };
@@ -400,9 +97,11 @@ function getLeaveTime() {
 }
 
 
-function temp() {
-    if(trainStartTime.value == '' || trainEvery.value == '') {
-        let returnTime = new Time(0, 0);
+function getLeaveTimeToCatchTrain() {
+    let nextTrain = getNextTrain();
+
+    if (!nextTrain.isValidTimeOfDay()) {
+        let returnTime = new Time(-1, -1);
         returnTime.toString = function toString() {
             return "-"
         };
@@ -412,28 +111,18 @@ function temp() {
 
     let walkTime;
 
-    if(trainWalkTime.value == '') {
+    if (trainWalkTime.value == '') {
         walkTime = 0;
     } else {
         walkTime = Time.fromString(trainWalkTime.value).asMinutes();
     }
 
-    let startTime = Time.fromString(trainStartTime.value).asMinutes();
-    let every = Time.fromString(trainEvery.value).asMinutes();
-    let currentTimeVar = currentTime().asMinutes();
-    let counter = startTime;
-
-
-    while(counter < (currentTimeVar + walkTime)) {
-        counter += every;
-    }
-
-    return Time.fromMinutes(counter);
+    return Time.fromMinutes(nextTrain.asMinutes() - walkTime);
 }
 
 function getNextTrain() {
-    if(trainStartTime.value == '' || trainEvery.value == '') {
-        let returnTime = new Time(0, 0);
+    if (trainStartTime.value == '' || trainEvery.value == '') {
+        let returnTime = new Time(-1, -1);
         returnTime.toString = function toString() {
             return "-"
         };
@@ -447,12 +136,18 @@ function getNextTrain() {
     let counter = startTime;
 
 
-    while(counter < currentTimeVar) {
+    while (counter < currentTimeVar) {
         counter += every;
     }
 
     return Time.fromMinutes(counter);
 }
+
+function getNextTrainTimeDifference() {
+    return Time.fromMinutes(getNextTrain().asMinutes() - currentTime().asMinutes());
+}
+
+
 
 function deleteFromTable(index) {
     tableController.remove(index);
@@ -503,10 +198,37 @@ function addTimeDifference(timeFieldID) {
 
 }
 
+
+// IDEEN:
+//  Arbeitszeit anzeigen, sodass Überstunden / Pluszeit am aktuellen Tag auch angezeigt wird.
+//  Bei Aufbrechzeit um Zug zu erreichen soll angezeigt werden, wie viele Plus oder Minusstunden man gemacht hat.
+//  Aufbrachzeit um Zug zu erreichen zeigt aktuell den aktuellen Zug an, nicht den bei Feierabend. Das muss evtl. so sein, da nicht bekannt ist wie viel Plus/Minusstunden gemacht werden.
+
 function updateUI() {
     updateTime();
+    updateIntervalDisplay();
     tableController.updateTable();
     infoTableController.updateTable();
+}
+
+function updateIntervalDisplay() {
+    const from = interval_from.value;
+    const to = interval_to.value;
+
+
+    if (from == '' || to == '') {
+        interval_display.innerText = "--:--";
+        return;
+    }
+    
+    const timeInterval = new TimeInterval(Time.fromString(from), Time.fromString(to));
+
+    if (!timeInterval.isValid()) {
+        interval_display.innerText = "--:--";
+        return;
+    }
+    
+    interval_display.innerText = timeInterval.getTimeDifference().toString();
 }
 
 
@@ -526,25 +248,41 @@ function loadFromLocalStorage() {
 
 
 
-    if(currentTime().hours < 13) {
+    if (currentTime().hours < 13) {
         breakActive.checked = true;
     }
 }
 
 function onLoad() {
-    timeToWork.addEventListener("input", function(e) {
+    timeToWork.addEventListener("input", function (e) {
         updateUI();
     });
 
-    breakTime.addEventListener("input", function(e) {
-        updateUI();
-    });
-    
-    trainStartTime.addEventListener("input", function(e) {
+    breakTime.addEventListener("input", function (e) {
         updateUI();
     });
 
-    trainEvery.addEventListener("input", function(e) {
+    trainStartTime.addEventListener("input", function (e) {
+        updateUI();
+    });
+
+    trainEvery.addEventListener("input", function (e) {
+        updateUI();
+    });
+
+    interval_from.addEventListener("input", function (e) {
+        updateIntervalDisplay();
+    });
+
+    interval_to.addEventListener("input", function (e) {
+        updateIntervalDisplay();
+    });
+
+    overtime.addEventListener("input", function (e) {
+        updateUI();
+    });
+
+    useOvertime.addEventListener("input", function (e) {
         updateUI();
     });
 

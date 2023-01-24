@@ -63,6 +63,13 @@
                         Zeit</button>
                 </div>
 
+                <div class="neumorphic_small">
+                    <span class="font-size-15"> Differenz: </span>
+                    <span id="interval_display">test</span>
+                </div>
+
+                <br/>
+
                 <div>
                     <button class="neumorphicButton_medium"
                         onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
@@ -98,6 +105,7 @@
                 </div>
 
                 <div>
+                    <input type="checkbox" id="useOvertime"></input>
                     Überstunden: <input type="time" id="overtime"></input>
                 </div>
 
@@ -155,8 +163,10 @@
     <br />
     <br />
 
+    
     <table id="infoTable" class="neumorphic_table"></table>
 
+    <script src='js/classes.js'></script>
     <script src='js/main.js'></script>
 </body>
 
