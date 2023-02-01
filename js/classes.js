@@ -4,6 +4,13 @@ class TimeStamp {
         this.timeInverval = new TimeInterval(currentTime(), null);
     }
 
+    static fromCustomBeginTime(startTime) {
+        let stamp = new TimeStamp();
+        stamp.timeInverval.startTime = startTime;
+
+        return stamp;
+    }
+
     getTimeDifference() {
         if(this.isOpen()) {
             return TimeDifference.calculateTimeDifference(this.timeInverval.startTime, currentTime());
@@ -237,6 +244,19 @@ class TimeTableController {
         this.addTimeStamp(new TimeStamp());
     }
 
+    isTimestampPresent() {
+        for(let i = 0; i < this.tableEntries.length; i++) {
+            let tableEntry = this.tableEntries[i];
+
+            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
     addTimeStamp(timeStamp) {
         this.tableEntries.push([this.getHightestIndex() + 1, timeStamp]);
         updateUI();
@@ -295,8 +315,8 @@ class InfoTableController {
                                 <tbody class="tableCell">
                                     <tr>
                                         <th scope="row"><div class="tableCell">${getCombinedTime().toString()}</div></th>
-                                        <th><div class="tableCell">${getTimeToWork().toString()}</div></th>
-                                        <th><div class="tableCell">${getLeaveTime().toString()}</div></th>
+                                        <th><div class="tableCell">${getTimeToWorkAsString()}</div></th>
+                                        <th><div class="tableCell">${getLeaveTimeAsString()}</div></th>
                                         <th><div class="tableCell">${getLeaveTimeToCatchTrain().toString()}</div></th>
                                         <th><div class="tableCell">${getNextTrain().toString()} <span>(in ${getNextTrainTimeDifference().toString()})</span> </div></th>
                                     </tr>

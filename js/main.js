@@ -51,27 +51,66 @@ function toggleLightDarkMode() {
     }
 }
 
+function getOvertime() {
+    if (useOvertime.checked && overtime.value != '') {
+        return Time.fromString(overtime.value);
+    }
+    return new Time(0, 0);
+}
+
+function getBreakTime() {
+    if (breakActive.checked && breakTime.value != '') {
+        return Time.fromString(breakTime.value);
+    }
+    return new Time(0, 0);
+}
+
+function getTimeToWorkAsMinutes() {
+    if (timeToWork.value != '') {
+        return Time.fromString(timeToWork.value).asMinutes();
+    }
+    return 0;
+}
+
 function getCombinedTime() {
     return tableController.combinedTime();
 }
 
 function getTimeToWork() {
-    
-    let minutes = Time.fromString(timeToWork.value).asMinutes() - getCombinedTime().asMinutes();
-    
-    if(useOvertime.checked && overtime.value != '') {
-        minutes -= Time.fromString(overtime.value).asMinutes();
+    let minutes = 0;
+
+    minutes += Time.fromString(timeToWork.value).asMinutes()
+    minutes -= getCombinedTime().asMinutes();
+    minutes -= getOvertime().asMinutes();
+
+    if (minutes < 0) {
+        return [true, Time.fromMinutes(-1 * minutes)];
     }
 
-    let ttW = Time.fromMinutes(minutes);
+    return [false, Time.fromMinutes(minutes)];
+    //     [isOvertime, Time]
+}
+// getOvertime().asMinutes() != 0
+function getTimeToWorkAsString() {
+    let ttW = getTimeToWork();
 
-    if (!ttW.isValidTimeOfDay()) {
-        ttW.toString = function toString() {
-            return "-";
-        };
+    if (ttW[0]) {                 //   00:00 Konto               // 03:00 Tag
+        let trueOvertime = -1 * (getOvertime().asMinutes() - ttW[1].asMinutes());
+        console.log("OT:" + getOvertime().toString());
+        console.log(Time.fromMinutes(trueOvertime).toString());
+        if (trueOvertime > 0) {
+            console.log("True Overtime");
+            return "++ " + Time.fromMinutes(trueOvertime).toString();
+        }
+
+        let overtime = ttW[1].asMinutes();
+        console.log("False Overtime");
+        return "+ " + Time.fromMinutes(overtime).toString();
+
+    } else {
+        console.log("No Overtime");
+        return ttW[1].toString();
     }
-
-    return ttW;
 }
 
 function timestamp() {
@@ -79,21 +118,34 @@ function timestamp() {
 }
 
 function getLeaveTime() {
-    let leaveTime = Time.fromMinutes(currentTime().asMinutes() + getTimeToWork().asMinutes());
+    let ttW = getTimeToWork();
 
-    if (breakActive.checked && breakTime.value != '') {
-        leaveTime = Time.fromMinutes(leaveTime.asMinutes() + Time.fromString(breakTime.value).asMinutes());
+    if (ttW[0]) {
+        return null;
     }
 
-    if (!getTimeToWork().isValidTimeOfDay()) {
-        leaveTime.toString = function toString() {
-            return "-";
-        };
-    }
+    let leaveTimeAsMinutes = 0;
 
+    leaveTimeAsMinutes += currentTime().asMinutes();
+    leaveTimeAsMinutes += ttW[1].asMinutes();
+    leaveTimeAsMinutes += getBreakTime().asMinutes();
+
+    let leaveTime = Time.fromMinutes(leaveTimeAsMinutes);
     leaveTime.perfromModulo();
 
     return leaveTime;
+}
+
+function getLeaveTimeAsString() {
+    let leaveTime = getLeaveTime();
+
+    if (leaveTime == null) {
+        return "-";
+    } else if (leaveTime.asMinutes() == currentTime().asMinutes()) {
+        return "-";
+    }
+
+    return leaveTime.toString();
 }
 
 
@@ -147,8 +199,6 @@ function getNextTrainTimeDifference() {
     return Time.fromMinutes(getNextTrain().asMinutes() - currentTime().asMinutes());
 }
 
-
-
 function deleteFromTable(index) {
     tableController.remove(index);
 }
@@ -159,6 +209,7 @@ function updateTime() {
 
 function replaceByCurrentTime(timeFieldID) {
     document.getElementById(timeFieldID).value = currentTime().toString();
+    updateUI();
 }
 
 function currentTime() {
@@ -172,9 +223,20 @@ function addTimeInterval(startTimeFieldID, endTimeFieldID) {
     const startTimeFieldValue = document.getElementById(startTimeFieldID).value;
     const endTimeFieldValue = document.getElementById(endTimeFieldID).value;
 
-    if (startTimeFieldValue == '' || endTimeFieldValue == '') {
-        alert("Mindestens eins der Zeitfelder ist leer.");
+    if (startTimeFieldValue == '') {
+        alert("Das Startzeitfeld ist leer.");
         return;
+    }
+
+    if (endTimeFieldValue == '') {
+        // add as Timestamp
+        if (!tableController.isTimestampPresent()) {
+            tableController.addTimeStamp(TimeStamp.fromCustomBeginTime(Time.fromString(startTimeFieldValue)));
+            return;
+        } else {
+            alert("Das Endzeitfeld ist leer und es ist bereits ein offener Zeitstempel vorhanden.");
+            return;
+        }
     }
 
     let timeInterval = new TimeInterval(Time.fromString(startTimeFieldValue), Time.fromString(endTimeFieldValue));
@@ -220,14 +282,14 @@ function updateIntervalDisplay() {
         interval_display.innerText = "--:--";
         return;
     }
-    
+
     const timeInterval = new TimeInterval(Time.fromString(from), Time.fromString(to));
 
     if (!timeInterval.isValid()) {
         interval_display.innerText = "--:--";
         return;
     }
-    
+
     interval_display.innerText = timeInterval.getTimeDifference().toString();
 }
 
