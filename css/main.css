@@ -134,6 +134,17 @@ input[type="checkbox"] {
     color: var(--backgroundColor);
 }
 
+.buttonInvisible {
+    padding: 6px 1px 0px 4px;
+
+    margin: 0;
+
+    font-size: medium;
+    background-color: transparent;
+
+    color: var(--textColor);
+    border: none;
+}
 
 .topLeft {
     position: absolute;

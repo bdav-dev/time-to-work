@@ -1,8 +1,6 @@
 const tableController = new TimeTableController(document.getElementById("timeTable"));
 const combinedTime = document.getElementById("combinedTime");
 const timeToWork = document.getElementById("timeToWork");
-const breakTime = document.getElementById("breakTime");
-const breakActive = document.getElementById("breakActive");
 const infoTableController = new InfoTableController(document.getElementById("infoTable"));
 const displayTime = document.getElementById("time");
 const trainStartTime = document.getElementById("train_startTime");
@@ -12,8 +10,9 @@ const toggleLightDarkModeButton = document.getElementById("toggleLightDarkModeBu
 const interval_from = document.getElementById("interval_from");
 const interval_to = document.getElementById("interval_to");
 const interval_display = document.getElementById("interval_display");
-const useOvertime = document.getElementById("useOvertime");
 const overtime = document.getElementById("overtime");
+const overtimeSign = document.getElementById("overtimeSign");
+const minBreak = document.getElementById("minBreak");
 
 const root = document.querySelector(':root');
 
@@ -51,152 +50,117 @@ function toggleLightDarkMode() {
     }
 }
 
-function getOvertime() {
-    if (useOvertime.checked && overtime.value != '') {
-        return Time.fromString(overtime.value);
-    }
-    return new Time(0, 0);
-}
 
-function getBreakTime() {
-    if (breakActive.checked && breakTime.value != '') {
-        return Time.fromString(breakTime.value);
-    }
-    return new Time(0, 0);
-}
-
-function getTimeToWorkAsMinutes() {
-    if (timeToWork.value != '') {
-        return Time.fromString(timeToWork.value).asMinutes();
-    }
-    return 0;
-}
 
 function getCombinedTime() {
     return tableController.combinedTime();
 }
 
-function getTimeToWork() {
-    let minutes = 0;
-
-    minutes += Time.fromString(timeToWork.value).asMinutes()
-    minutes -= getCombinedTime().asMinutes();
-    minutes -= getOvertime().asMinutes();
-
-    if (minutes < 0) {
-        return [true, Time.fromMinutes(-1 * minutes)];
+function getRemainingTimeToWork() {
+    if (timeToWork.value == '') {
+        return Time.invalid();
     }
 
-    return [false, Time.fromMinutes(minutes)];
-    //     [isOvertime, Time]
+    return Time.fromMinutesAllowNegative(Time.fromString(timeToWork.value).asMinutes() - getCombinedTime().asMinutes());
 }
-// getOvertime().asMinutes() != 0
-function getTimeToWorkAsString() {
-    let ttW = getTimeToWork();
 
-    if (ttW[0]) {                 //   00:00 Konto               // 03:00 Tag
-        let trueOvertime = -1 * (getOvertime().asMinutes() - ttW[1].asMinutes());
-        console.log("OT:" + getOvertime().toString());
-        console.log(Time.fromMinutes(trueOvertime).toString());
-        if (trueOvertime > 0) {
-            console.log("True Overtime");
-            return "++ " + Time.fromMinutes(trueOvertime).toString();
-        }
+function getNextOvertime() {
+    if (overtime.value == '') {
+        return Time.invalid();
+    }
 
-        let overtime = ttW[1].asMinutes();
-        console.log("False Overtime");
-        return "+ " + Time.fromMinutes(overtime).toString();
+    return Time.fromMinutesAllowNegative(getOvertime().asMinutes() - getRemainingTimeToWork().asMinutes());
+}
 
+function getBreakText() {
+    let currentBreak = getBreak();
+    let minBreak = getMinBreak();
+
+    if (currentBreak.invalid || currentBreak.asMinutes() == 0 || minBreak.asMinutes() == 0) {
+        return currentBreak.toString();
+    }
+
+    let remainingBreaktimeAsMinutes = minBreak.asMinutes() - currentBreak.asMinutes();
+
+    if (remainingBreaktimeAsMinutes < 0) {
+        return currentBreak.toString() + " (+" + Time.fromMinutes(-1 * remainingBreaktimeAsMinutes).toString() + ")";
     } else {
-        console.log("No Overtime");
-        return ttW[1].toString();
+        return currentBreak.toString() + " (-" + Time.fromMinutes(remainingBreaktimeAsMinutes).toString() + ")";
     }
 }
 
-function timestamp() {
-    tableController.timestamp();
+function getOvertime() {
+    let t = Time.fromString(overtime.value);
+
+    if (!t.invalid) {
+        return Time.fromMinutesAllowNegative(getOvertimeSign() * t.asMinutes());
+    }
 }
 
-function getLeaveTime() {
-    let ttW = getTimeToWork();
+function getTrainText() {
+    let leaveTime = getLeaveTimeToCatchTrain();
+    let nextTrain = getNextTrain();
+    let nextTrainTimeDiff = getNextTrainTimeDifference();
 
-    if (ttW[0]) {
-        return null;
+    if (nextTrain.invalid || nextTrainTimeDiff.invalid) {
+        return "--:--";
     }
 
-    let leaveTimeAsMinutes = 0;
-
-    leaveTimeAsMinutes += currentTime().asMinutes();
-    leaveTimeAsMinutes += ttW[1].asMinutes();
-    leaveTimeAsMinutes += getBreakTime().asMinutes();
-
-    let leaveTime = Time.fromMinutes(leaveTimeAsMinutes);
-    leaveTime.perfromModulo();
-
-    return leaveTime;
-}
-
-function getLeaveTimeAsString() {
-    let leaveTime = getLeaveTime();
-
-    if (leaveTime == null) {
-        return "-";
-    } else if (leaveTime.asMinutes() == currentTime().asMinutes()) {
-        return "-";
+    if (leaveTime.invalid) {
+        return nextTrain.toString() + " (in " + nextTrainTimeDiff.toString() + ")";
     }
 
-    return leaveTime.toString();
+    return leaveTime.toString() + " → " + nextTrain.toString() + " (in " + nextTrainTimeDiff.toString() + ")";
 }
 
 
 function getLeaveTimeToCatchTrain() {
     let nextTrain = getNextTrain();
 
-    if (!nextTrain.isValidTimeOfDay()) {
-        let returnTime = new Time(-1, -1);
-        returnTime.toString = function toString() {
-            return "-"
-        };
-
-        return returnTime;
+    if (nextTrain.invalid || !nextTrain.isValidTimeOfDay() || trainWalkTime.value == '') {
+        return Time.invalid();
     }
 
-    let walkTime;
-
-    if (trainWalkTime.value == '') {
-        walkTime = 0;
-    } else {
-        walkTime = Time.fromString(trainWalkTime.value).asMinutes();
-    }
-
-    return Time.fromMinutes(nextTrain.asMinutes() - walkTime);
+    return Time.fromMinutes(nextTrain.asMinutes() - Time.fromString(trainWalkTime.value).asMinutes());
 }
 
 function getNextTrain() {
     if (trainStartTime.value == '' || trainEvery.value == '') {
-        let returnTime = new Time(-1, -1);
-        returnTime.toString = function toString() {
-            return "-"
-        };
-
-        return returnTime;
+        return Time.invalid();
     }
 
     let startTime = Time.fromString(trainStartTime.value).asMinutes();
     let every = Time.fromString(trainEvery.value).asMinutes();
     let currentTimeVar = currentTime().asMinutes();
-    let counter = startTime;
 
-
-    while (counter < currentTimeVar) {
-        counter += every;
+    if (every == 0) {
+        return Time.invalid();
     }
 
-    return Time.fromMinutes(counter);
+    let n = (currentTimeVar - startTime) / every;
+
+    if (n < 0) {
+        return Time.fromMinutes(startTime);
+    }
+
+    return Time.fromMinutes(startTime + (Math.floor(n) + 1) * every);
 }
 
 function getNextTrainTimeDifference() {
     return Time.fromMinutes(getNextTrain().asMinutes() - currentTime().asMinutes());
+}
+
+function getBreak() {
+    return tableController.calcBreak();
+}
+
+function getMinBreak() {
+    return Time.fromString(minBreak.value);
+}
+
+
+function timestamp() {
+    tableController.timestamp();
 }
 
 function deleteFromTable(index) {
@@ -231,7 +195,14 @@ function addTimeInterval(startTimeFieldID, endTimeFieldID) {
     if (endTimeFieldValue == '') {
         // add as Timestamp
         if (!tableController.isTimestampPresent()) {
-            tableController.addTimeStamp(TimeStamp.fromCustomBeginTime(Time.fromString(startTimeFieldValue)));
+            const customStartTime = Time.fromString(startTimeFieldValue);
+
+            if (customStartTime.asMinutes() > currentTime().asMinutes()) {
+                alert("Der Beginn des Zeitstempels liegt in der Zukunft.");
+                return;
+            }
+
+            tableController.addTimeStamp(TimeStamp.fromCustomBeginTime(customStartTime));
             return;
         } else {
             alert("Das Endzeitfeld ist leer und es ist bereits ein offener Zeitstempel vorhanden.");
@@ -260,11 +231,22 @@ function addTimeDifference(timeFieldID) {
 
 }
 
+function toggleOvertimeSign() {
+    if (overtimeSign.innerText == '-') {
+        overtimeSign.innerText = '+';
+    } else {
+        overtimeSign.innerText = '-';
+    }
+    updateUI();
+}
 
-// IDEEN:
-//  Arbeitszeit anzeigen, sodass Überstunden / Pluszeit am aktuellen Tag auch angezeigt wird.
-//  Bei Aufbrechzeit um Zug zu erreichen soll angezeigt werden, wie viele Plus oder Minusstunden man gemacht hat.
-//  Aufbrachzeit um Zug zu erreichen zeigt aktuell den aktuellen Zug an, nicht den bei Feierabend. Das muss evtl. so sein, da nicht bekannt ist wie viel Plus/Minusstunden gemacht werden.
+function getOvertimeSign() {
+    if (overtimeSign.innerText == '-') {
+        return -1;
+    } else {
+        return 1;
+    }
+}
 
 function updateUI() {
     updateTime();
@@ -273,10 +255,10 @@ function updateUI() {
     infoTableController.updateTable();
 }
 
+
 function updateIntervalDisplay() {
     const from = interval_from.value;
     const to = interval_to.value;
-
 
     if (from == '' || to == '') {
         interval_display.innerText = "--:--";
@@ -294,65 +276,109 @@ function updateIntervalDisplay() {
 }
 
 
-
-//DATA TO SAVE
-//table entries
-//timetowork
-//breaktime
-//breakset
-
 function loadFromLocalStorage() {
-    timeToWork.value = "08:12";
-    breakTime.value = "00:45";
-    trainStartTime.value = "00:04";
-    trainEvery.value = "00:30";
-    trainWalkTime.value = "00:15";
+    let userdata = JSON.parse(localStorage.getItem("bdav5.timetowork.userdata"));
 
+    if(userdata == null) {
+        return;
+    }
 
+    let table = userdata[0];
+    let tableEntries = [];
 
-    if (currentTime().hours < 13) {
-        breakActive.checked = true;
+    if(table != null) {
+        for (let i = 0; i < table.length; i++) {
+            let tableEntry = table[i];
+    
+            if (tableEntry.classname == 'TimeStamp') {
+                tableEntries.push(TimeStamp.fromTimeStamp(tableEntry));
+            } else if (tableEntry.classname == 'TimeDifference') {
+                tableEntries.push(TimeDifference.fromTimeDifference(tableEntry));
+            } else if (tableEntry.classname == 'TimeInterval') {
+                tableEntries.push(TimeInterval.fromTimeInterval(tableEntry));
+            }
+        }
+    }
+    tableController.tableEntries = tableEntries;
+
+    timeToWork.value = userdata[1];
+    overtime.value = userdata[2];
+
+    let overtimeSignVar = userdata[3];
+    if(overtimeSignVar == '+' || overtimeSignVar == '-') {
+        overtimeSign.innerText = overtimeSignVar;
+    } else {
+        overtimeSign.innerText = '+';
+    }
+
+    minBreak.value = userdata[4];
+    trainStartTime.value = userdata[5];
+    trainEvery.value = userdata[6];
+    trainWalkTime.value = userdata[7];
+    
+    let light = userdata[8];
+    if(light == null) {
+        isLightMode = true;
+    } else {
+        isLightMode = light;
     }
 }
 
+function removeAll() {
+    localStorage.removeItem("bdav5.timetowork.userdata");
+}
+
+function saveToLocalStorage() {
+    let userdata = [
+        tableController.tableEntries,
+        timeToWork.value,
+        overtime.value,
+        overtimeSign.innerText,
+        minBreak.value,
+        trainStartTime.value,
+        trainEvery.value,
+        trainWalkTime.value,
+        isLightMode,
+        Date.now()
+    ];
+
+    localStorage.setItem("bdav5.timetowork.userdata", JSON.stringify(userdata));
+}
+
 function onLoad() {
-    timeToWork.addEventListener("input", function (e) {
-        updateUI();
-    });
 
-    breakTime.addEventListener("input", function (e) {
+    const f = function (e) {
         updateUI();
-    });
+    }
 
-    trainStartTime.addEventListener("input", function (e) {
-        updateUI();
-    });
-
-    trainEvery.addEventListener("input", function (e) {
-        updateUI();
-    });
-
-    interval_from.addEventListener("input", function (e) {
+    const f2 = function (e) {
         updateIntervalDisplay();
-    });
+    }
 
-    interval_to.addEventListener("input", function (e) {
-        updateIntervalDisplay();
-    });
-
-    overtime.addEventListener("input", function (e) {
-        updateUI();
-    });
-
-    useOvertime.addEventListener("input", function (e) {
-        updateUI();
-    });
+    timeToWork.addEventListener("input", f);
+    trainStartTime.addEventListener("input", f);
+    trainEvery.addEventListener("input", f);
+    trainWalkTime.addEventListener("input", f);
+    interval_from.addEventListener("input", f2);
+    interval_to.addEventListener("input", f2);
+    overtime.addEventListener("input", f);
+    minBreak.addEventListener("input", f);
 
     loadFromLocalStorage();
     updateUI();
+
+    if(isLightMode) {
+        lightMode();
+    } else {
+        darkMode();
+    }
+
 }
 
-//IDEEN: feld für plus zeit, Zug
-
+window.onbeforeunload = closeingCode;
+function closeingCode() {
+    saveToLocalStorage();
+    //removeAll();
+}
 
 onLoad();

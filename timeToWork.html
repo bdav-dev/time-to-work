@@ -13,11 +13,8 @@
         <h1><u>Arbeitszeitrechner</u></h1>
     </div>
 
-
-    <button id="toggleLightDarkModeButton"class="topLeft neumorphicButton_small" onclick="toggleLightDarkMode()">dunkler Modus</button>
-
-
-
+    <button id="toggleLightDarkModeButton" class="topLeft neumorphicButton_small"
+        onclick="toggleLightDarkMode()">dunkler Modus</button>
 
     <div class="centered">
         <span id="time" class="neumorphic_small"></span>
@@ -25,8 +22,6 @@
         <br />
         <button class="neumorphicButton_medium" onclick="updateUI()">Daten aktualisieren</button>
     </div>
-
-
 
     <br />
     <br />
@@ -65,10 +60,10 @@
 
                 <div class="neumorphic_small">
                     <span class="font-size-15"> Differenz: </span>
-                    <span id="interval_display">test</span>
+                    <span id="interval_display">--:--</span>
                 </div>
 
-                <br/>
+                <br />
 
                 <div>
                     <button class="neumorphicButton_medium"
@@ -105,24 +100,12 @@
                 </div>
 
                 <div>
-                    <input type="checkbox" id="useOvertime"></input>
-                    Überstunden: <input type="time" id="overtime"></input>
+                    Zeitsaldo: <button id="overtimeSign" onclick="toggleOvertimeSign()"
+                        class="buttonInvisible">+</button><input type="time" id="overtime"></input>
                 </div>
 
-
                 <div>
-                    <table class="fullWidth">
-                        <tr>
-                            <td style="border: none; text-align: right;">
-                                <div class="tableCell"><input type="checkbox" id="breakActive" onclick="updateUI()"></input></div>
-                            </td>
-
-                            <td style="border: none; text-align: left;">
-                                <div class="tableCell">Rechne Pause von <br/>
-                                <input type="time" id="breakTime"></input> ein</div>
-                            </td>
-                        </tr>
-                    </table>
+                    Mindestpause: <input type="time" id="minBreak"></input>
                 </div>
 
             </div>
@@ -141,7 +124,7 @@
                 </div>
 
                 <div>
-                    Laufzeit: <input type="time" id="train_walktime"></input>
+                    <span>Laufzeit: <input type="time" id="train_walktime"></input>
                 </div>
 
             </div>
@@ -163,7 +146,7 @@
     <br />
     <br />
 
-    
+
     <table id="infoTable" class="neumorphic_table"></table>
 
     <script src='js/classes.js'></script>

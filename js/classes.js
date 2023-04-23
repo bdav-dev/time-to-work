@@ -1,38 +1,51 @@
 class TimeStamp {
 
     constructor() {
-        this.timeInverval = new TimeInterval(currentTime(), null);
+        this.timeInterval = new TimeInterval(currentTime(), null);
+        this.classname = 'TimeStamp';
     }
 
     static fromCustomBeginTime(startTime) {
         let stamp = new TimeStamp();
-        stamp.timeInverval.startTime = startTime;
+        stamp.timeInterval.startTime = startTime;
 
         return stamp;
     }
 
+    static fromTimeStamp(timestamp) {
+        console.log(timestamp);
+        console.log(timestamp.timeInterval);
+        let ts = new TimeStamp();
+        ts.timeInterval = TimeInterval.fromTimeInterval(timestamp.timeInterval);
+        return ts;
+    }
+
     getTimeDifference() {
-        if(this.isOpen()) {
-            return TimeDifference.calculateTimeDifference(this.timeInverval.startTime, currentTime());
+        if (this.isOpen()) {
+            return TimeDifference.calculateTimeDifference(this.timeInterval.startTime, currentTime());
         }
 
-        return this.timeInverval.getTimeDifference();
+        return this.timeInterval.getTimeDifference();
     }
 
     close() {
-        this.timeInverval.endTime = currentTime();
+        this.timeInterval.endTime = currentTime();
     }
 
     toString() {
-        if(this.isOpen()) {
-            return this.timeInverval.startTime.toString() + " - ...";
+        if (this.isOpen()) {
+            return this.timeInterval.startTime.toString() + " - ...";
         }
-        
-        return this.timeInverval.toString();
+
+        return this.timeInterval.toString();
     }
 
     isOpen() {
-        return this.timeInverval.endTime == null;
+        return this.timeInterval.endTime == null;
+    }
+
+    getStartTime() {
+        return this.timeInterval.startTime;
     }
 
 }
@@ -42,6 +55,11 @@ class TimeDifference {
 
     constructor(timeDifference) {
         this.timeDifference = timeDifference;
+        this.classname = 'TimeDifference';
+    }
+
+    static fromTimeDifference(timeDifference) {
+        return new TimeDifference(Time.fromTime(timeDifference.timeDifference));
     }
 
     getTimeDifference() {
@@ -64,10 +82,11 @@ class TimeInterval {
     constructor(startTime, endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
+        this.classname = 'TimeInterval';
     }
 
     static fromTimeInterval(timeInterval) {
-        return new TimeInterval(timeInterval.startTime, timeInterval.endTime);
+        return new TimeInterval(Time.fromTime(timeInterval.startTime), Time.fromTime(timeInterval.endTime));
     }
 
     isValid() {
@@ -90,6 +109,10 @@ class TimeInterval {
         return TimeDifference.calculateTimeDifference(this.startTime, this.endTime);
     }
 
+    getStartTime() {
+        return this.startTime;
+    }
+
 }
 
 class Time {
@@ -97,27 +120,65 @@ class Time {
     constructor(hours, minutes) {
         this.hours = hours;
         this.minutes = minutes;
+        this.negative = false;
+        this.invalid = false;
+    }
+
+    static invalid() {
+        let t = new Time(0, 0);
+        t.invalid = true;
+        return t;
     }
 
     static fromTime(time) {
+        if(time == null) {
+            return null;
+        }
         return new Time(time.hours, time.minutes);
     }
 
     static fromMinutes(minutes) {
+        if (minutes < 0) {
+            return Time.invalid();
+        }
+
         return new Time(Math.floor(minutes / 60), minutes % 60);
     }
 
+    static fromMinutesAllowNegative(minutes) {
+        if (minutes < 0) {
+            minutes = -minutes;
+            let time = new Time(Math.floor(minutes / 60), minutes % 60)
+            time.negative = true;
+            return time;
+        }
+
+        return new Time(Math.floor(minutes / 60), minutes % 60);
+    }
+
+    static fromMinutesGreaterThanZero(minutes) {
+        if(minutes > 0) {
+            return Time.fromMinutes(minutes);
+        }
+
+        return Time.invalid();
+    }
+
     static fromString(string) {
+        if(string == '') {
+            return Time.invalid();
+        }
+
         const seperated = string.split(":");
         return new Time(parseInt(seperated[0]), parseInt(seperated[1]));
     }
 
     isValidTimeOfDay() {
-        if(this.hours < 0 || this.hours > 23) {
+        if (this.hours < 0 || this.hours > 23) {
             return false;
         }
 
-        if(this.minutes < 0 || this.minutes > 59) {
+        if (this.minutes < 0 || this.minutes > 59) {
             return false;
         }
 
@@ -129,7 +190,15 @@ class Time {
     }
 
     toString() {
-        let timeAsString = ""
+        if(this.invalid) {
+            return "--:--";
+        }
+
+        let timeAsString = "";
+
+        if (this.negative) {
+            timeAsString = "- ";
+        }
 
         if (this.hours.toString().length == 1) {
             timeAsString += "0" + this.hours.toString();
@@ -149,13 +218,15 @@ class Time {
     }
 
     asMinutes() {
-        return this.minutes + 60 * this.hours;
+        let minutes = this.minutes + 60 * this.hours
+        if (this.negative) minutes *= -1;
+        return minutes;
     }
 
 }
 
 
-//table entries structure: [index, item]
+
 class TimeTableController {
 
     constructor(tableElement) {
@@ -164,17 +235,7 @@ class TimeTableController {
     }
 
     updateTable() {
-        for(let i = 0; i < this.tableEntries.length; i++) {
-            let tableEntry = this.tableEntries[i];
-
-            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen() && i != this.tableEntries.length - 1) {
-                let openTimeStamp = tableEntry[1];
-                this.tableEntries.splice(i, 1);
-                this.tableEntries.push([this.getHightestIndex() + 1, openTimeStamp]);
-                this.updateTable();
-                return;
-            }
-        }
+        this.sortTable();
 
         let tableInnerHTML = `<thead>
                                 <tr>
@@ -185,33 +246,32 @@ class TimeTableController {
                               </thead>
                               <tbody class="tableCell">`;
 
-        if(this.tableEntries.length == 0) {
+        if (this.tableEntries.length == 0) {
             tableInnerHTML += `<tr>
                                 <th colspan="3" scope="row"><div class="tableCell">[Tabelle leer]</div></th>
                                </tr>`;
         }
 
-        for(let i = 0; i < this.tableEntries.length; i++) {
+        for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
-            tableEntry[0] = i;
 
-            let timeInvervalText = "";
+            let timeIntervalText = "";
             let timeDifferenceText = "";
 
-            if(tableEntry[1] instanceof TimeInterval) {
-                timeInvervalText = tableEntry[1].toString();
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
+            if (tableEntry instanceof TimeInterval) {
+                timeIntervalText = tableEntry.toString();
+                timeDifferenceText = tableEntry.getTimeDifference().toString();
 
-            } else if(tableEntry[1] instanceof TimeDifference) {
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
+            } else if (tableEntry instanceof TimeDifference) {
+                timeDifferenceText = tableEntry.getTimeDifference().toString();
 
-            } else if(tableEntry[1] instanceof TimeStamp) {
-                timeInvervalText = tableEntry[1].toString();
-                timeDifferenceText = tableEntry[1].getTimeDifference().toString();
+            } else if (tableEntry instanceof TimeStamp) {
+                timeIntervalText = tableEntry.toString();
+                timeDifferenceText = tableEntry.getTimeDifference().toString();
             }
 
             tableInnerHTML += `<tr>
-                                <td scope="row"><div class="tableCell">${timeInvervalText}</div></td>
+                                <td scope="row"><div class="tableCell">${timeIntervalText}</div></td>
                                 <td><div class="tableCell">${timeDifferenceText}</div></td>
                                 <td><div class="tableCell"><button class="neumorphicButton_small" onClick="deleteFromTable(${i})">Löschen</button></div></td>
                                </tr>`;
@@ -222,6 +282,62 @@ class TimeTableController {
         this.table.innerHTML = tableInnerHTML;
     }
 
+    sortTable() {
+        this.tableEntries.sort((a, b) => {
+            if (a instanceof TimeDifference) {
+                return -1;
+            } else if (b instanceof TimeDifference) {
+                return 1;
+            }
+
+            return a.getStartTime().asMinutes() - b.getStartTime().asMinutes();
+        });
+    }
+
+    calcBreak() {
+        let br = 0;
+        let tempTime;
+        let firstRun = true;
+
+        for (let i = 0; i < this.tableEntries.length; i++) {
+            let obj = this.tableEntries[i];
+            let beg;
+            let end;
+
+            if (obj instanceof TimeInterval) {
+                beg = obj.startTime;
+                end = obj.endTime;
+            } else if (obj instanceof TimeStamp) {
+                if (!obj.isOpen()) {
+                    beg = obj.timeInterval.startTime;
+                    end = obj.timeInterval.endTime;
+                } else {
+                    if (i == this.tableEntries.length - 1) {
+                        beg = obj.timeInterval.startTime;
+                    } else {
+                        return Time.invalid();
+                    }
+                }
+            } else {
+                continue;
+            }
+
+            if (firstRun) {
+                tempTime = end;
+                firstRun = false;
+            } else {
+                br += beg.asMinutes() - tempTime.asMinutes();
+                tempTime = end;
+            }
+        }
+
+        if(br < 0) {
+            return Time.invalid();
+        }
+
+        return Time.fromMinutes(br);
+    }
+
     remove(index) {
         this.tableEntries.splice(index, 1);
         updateUI();
@@ -229,26 +345,26 @@ class TimeTableController {
 
     timestamp() {
 
-        for(let i = 0; i < this.tableEntries.length; i++) {
+        for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
 
 
-            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen()) {
-                tableEntry[1].close();
+            if (tableEntry instanceof TimeStamp && tableEntry.isOpen()) {
+                tableEntry.close();
                 updateUI();
                 return;
             }
-        
+
         }
 
         this.addTimeStamp(new TimeStamp());
     }
 
     isTimestampPresent() {
-        for(let i = 0; i < this.tableEntries.length; i++) {
+        for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
 
-            if(tableEntry[1] instanceof TimeStamp && tableEntry[1].isOpen()) {
+            if (tableEntry instanceof TimeStamp && tableEntry.isOpen()) {
                 return true;
             }
         }
@@ -258,27 +374,18 @@ class TimeTableController {
 
 
     addTimeStamp(timeStamp) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeStamp]);
+        this.tableEntries.push(timeStamp);
         updateUI();
     }
 
     addTimeInterval(timeInterval) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeInterval]);
+        this.tableEntries.push(timeInterval);
         updateUI();
     }
 
     addTimeDifference(timeDifference) {
-        this.tableEntries.push([this.getHightestIndex() + 1, timeDifference]);
+        this.tableEntries.push(timeDifference);
         updateUI();
-    }
-
-    getHightestIndex() {
-        if (this.tableEntries.length == 0) {
-            return 0;
-        }
-
-        let latestEntry = this.tableEntries[this.tableEntries.length - 1];
-        return latestEntry[0];
     }
 
     combinedTime() {
@@ -287,7 +394,7 @@ class TimeTableController {
         for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
 
-            combinedTime += tableEntry[1].getTimeDifference().asMinutes();
+            combinedTime += tableEntry.getTimeDifference().asMinutes();
         }
 
         return Time.fromMinutes(combinedTime);
@@ -306,8 +413,8 @@ class InfoTableController {
                                     <tr class="tableHeader">
                                         <th scope="col"><div class="tableHeadline">Summe der Arbeitszeit</div></th>
                                         <th scope="col"><div class="tableHeadline">restliche Arbeitszeit</div></th>
-                                        <th scope="col"><div class="tableHeadline">Uhrzeit zum gehen</div></th>
-                                        <th scope="col"><div class="tableHeadline">Aufbrechzeit um Zug zu erreichen</div></th>
+                                        <th scope="col"><div class="tableHeadline">neuer Zeitsaldo</div></th>
+                                        <th scope="col"><div class="tableHeadline">Pause</div></th>
                                         <th scope="col"><div class="tableHeadline">nächster Zug</div></th>
                                     </tr>
                                 </thead>
@@ -315,12 +422,16 @@ class InfoTableController {
                                 <tbody class="tableCell">
                                     <tr>
                                         <th scope="row"><div class="tableCell">${getCombinedTime().toString()}</div></th>
-                                        <th><div class="tableCell">${getTimeToWorkAsString()}</div></th>
-                                        <th><div class="tableCell">${getLeaveTimeAsString()}</div></th>
-                                        <th><div class="tableCell">${getLeaveTimeToCatchTrain().toString()}</div></th>
-                                        <th><div class="tableCell">${getNextTrain().toString()} <span>(in ${getNextTrainTimeDifference().toString()})</span> </div></th>
+                                        <th><div class="tableCell">${getRemainingTimeToWork().toString()}</div></th>
+                                        <th><div class="tableCell">${getNextOvertime().toString()}</div></th>
+                                        <th><div class="tableCell">${getBreakText()}</div></th>
+                                        <th><div class="tableCell">${getTrainText()}</div></th>
                                     </tr>
-                                </tbody>`;                        
+                                </tbody>`;
     }
-
+    //${getNextTrainTimeDifference().toString()})
+    // ${getNextTrain().toString()} 
+    // ${getLeaveTimeToCatchTrain().toString()}
+    //<th><div class="tableCell">${getLeaveTimeToCatchTrain().toString()} → ${getNextTrain().toString()} (in ${getNextTrainTimeDifference().toString()})</div></th>
+                                    
 }
