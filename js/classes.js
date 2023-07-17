@@ -13,8 +13,6 @@ class TimeStamp {
     }
 
     static fromTimeStamp(timestamp) {
-        console.log(timestamp);
-        console.log(timestamp.timeInterval);
         let ts = new TimeStamp();
         ts.timeInterval = TimeInterval.fromTimeInterval(timestamp.timeInterval);
         return ts;

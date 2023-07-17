@@ -283,6 +283,15 @@ function loadFromLocalStorage() {
         return;
     }
 
+    /* TODO: check Date, if not equal, don't load data.
+    const currDate = new Date();
+    const dataDate = new Date(Date.parse(userdata[9]));
+
+    if(currDate.get) {
+
+    }
+    */
+
     let table = userdata[0];
     let tableEntries = [];
 
@@ -339,7 +348,7 @@ function saveToLocalStorage() {
         trainEvery.value,
         trainWalkTime.value,
         isLightMode,
-        Date.now()
+        new Date().toDateString()
     ];
 
     localStorage.setItem("bdav5.timetowork.userdata", JSON.stringify(userdata));

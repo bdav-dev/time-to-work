@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Ubuntu Mono';
+    font-family: 'Courier New', Courier, monospace;
     background: var(--backgroundColor);
     color: var(--textColor);
     margin: 20px;
@@ -111,27 +111,28 @@ body {
 
 }
 
-
 input[type="time"] {
     padding: 6px;
     margin: 4px;
     background: var(--backgroundColor);
     color: var(--textColor);
-    border: none;
+    border: 1px solid;
+    border-color: transparent;
     border-radius: 20px;
+
 
     box-shadow: inset 2px 2px 4px var(--darkShadowColor),
         inset -2px -2px 4px var(--lightShadowColor);
 }
 
-input[type="time"]::-webkit-calender-picker-indicator {
-    filter: invert(100%);
-
+input[type="time"]:focus {
+    outline: none;
+    border: 1px solid;
+    box-sizing: border-box;
 }
 
-input[type="checkbox"] {
-    /*TODO*/
-    color: var(--backgroundColor);
+input[type="time"]::-webkit-calender-picker-indicator {
+    filter: invert(100%);
 }
 
 .buttonInvisible {
@@ -150,6 +151,12 @@ input[type="checkbox"] {
     position: absolute;
     top: 20px;
     left: 20px;
+}
+
+.topRight {
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }
 
 .controllElementTitle {
@@ -190,7 +197,7 @@ table thead tr:first-child th {
 }
 
 table tbody tr:last-child td,
-table tbody tr:last-child th{
+table tbody tr:last-child th {
     border-bottom: 0;
 }
 
@@ -216,7 +223,7 @@ table tr td:last-child {
 }
 
 button {
-    font-family: 'Cascadia Code';
+    font-family: 'Courier New', Courier, monospace;
     color: var(--textColor);
 }
 
@@ -275,7 +282,6 @@ button {
 
 
 #time {
-    /*padding: 6px;*/
     font-size: x-large;
 }
 
