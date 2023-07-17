@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Cascadia Code';
+    font-family: 'Ubuntu Mono';
     background: var(--backgroundColor);
     color: var(--textColor);
     margin: 20px;
