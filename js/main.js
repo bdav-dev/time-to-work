@@ -13,10 +13,17 @@ const interval_display = document.getElementById("interval_display");
 const overtime = document.getElementById("overtime");
 const overtimeSign = document.getElementById("overtimeSign");
 const minBreak = document.getElementById("minBreak");
+const errorModal = document.getElementById("errorModal");
+const errorModalText = document.getElementById("errorModalText");
 
 const root = document.querySelector(':root');
 
 let isLightMode = true;
+
+function showErrorModal(text) {
+    errorModalText.innerHTML = text;
+    errorModal.showModal();
+}
 
 function lightMode() {
     const computedStyle = getComputedStyle(root);
@@ -43,31 +50,26 @@ function darkMode() {
 }
 
 function toggleLightDarkMode() {
-    if (isLightMode) {
+    if (isLightMode)
         darkMode();
-    } else {
+    else
         lightMode();
-    }
 }
-
-
 
 function getCombinedTime() {
     return tableController.combinedTime();
 }
 
 function getRemainingTimeToWork() {
-    if (timeToWork.value == '') {
+    if (timeToWork.value == '')
         return Time.invalid();
-    }
 
     return Time.fromMinutesAllowNegative(Time.fromString(timeToWork.value).asMinutes() - getCombinedTime().asMinutes());
 }
 
 function getNextOvertime() {
-    if (overtime.value == '') {
+    if (overtime.value == '')
         return Time.invalid();
-    }
 
     return Time.fromMinutesAllowNegative(getOvertime().asMinutes() - getRemainingTimeToWork().asMinutes());
 }
@@ -76,25 +78,22 @@ function getBreakText() {
     let currentBreak = getBreak();
     let minBreak = getMinBreak();
 
-    if (currentBreak.invalid || currentBreak.asMinutes() == 0 || minBreak.asMinutes() == 0) {
+    if (currentBreak.invalid || currentBreak.asMinutes() == 0 || minBreak.asMinutes() == 0)
         return currentBreak.toString();
-    }
 
     let remainingBreaktimeAsMinutes = minBreak.asMinutes() - currentBreak.asMinutes();
 
-    if (remainingBreaktimeAsMinutes < 0) {
+    if (remainingBreaktimeAsMinutes < 0)
         return currentBreak.toString() + " (+" + Time.fromMinutes(-1 * remainingBreaktimeAsMinutes).toString() + ")";
-    } else {
+    else
         return currentBreak.toString() + " (-" + Time.fromMinutes(remainingBreaktimeAsMinutes).toString() + ")";
-    }
 }
 
 function getOvertime() {
     let t = Time.fromString(overtime.value);
 
-    if (!t.invalid) {
+    if (!t.invalid)
         return Time.fromMinutesAllowNegative(getOvertimeSign() * t.asMinutes());
-    }
 }
 
 function getTrainText() {
@@ -102,46 +101,64 @@ function getTrainText() {
     let nextTrain = getNextTrain();
     let nextTrainTimeDiff = getNextTrainTimeDifference();
 
-    if (nextTrain.invalid || nextTrainTimeDiff.invalid) {
+    if (nextTrain.invalid || nextTrainTimeDiff.invalid)
         return "--:--";
-    }
 
-    if (leaveTime.invalid) {
+    if (leaveTime.invalid)
         return nextTrain.toString() + " (in " + nextTrainTimeDiff.toString() + ")";
-    }
 
     return leaveTime.toString() + " → " + nextTrain.toString() + " (in " + nextTrainTimeDiff.toString() + ")";
+}
+
+function getEndOfWork() {
+    const currTime = currentTime();
+    const remainingTimeToWork = getRemainingTimeToWork();
+    const workBreak = getBreak();
+    const minBreak = getMinBreak();
+
+    if (remainingTimeToWork.invalid ||
+        remainingTimeToWork.negative ||
+        workBreak.invalid ||
+        minBreak.invalid)
+        return Time.invalid();
+
+    const remainingBreak = Time.fromMinutes(minBreak.asMinutes() - workBreak.asMinutes());
+
+    const finalTime =  Time.fromMinutes(
+        currTime.asMinutes() +
+        remainingTimeToWork.asMinutes() +
+        (remainingBreak.invalid ? 0 : remainingBreak.asMinutes())
+    );
+    finalTime.perfromModulo();
+
+    return finalTime;
 }
 
 
 function getLeaveTimeToCatchTrain() {
     let nextTrain = getNextTrain();
 
-    if (nextTrain.invalid || !nextTrain.isValidTimeOfDay() || trainWalkTime.value == '') {
+    if (nextTrain.invalid || !nextTrain.isValidTimeOfDay() || trainWalkTime.value == '')
         return Time.invalid();
-    }
 
     return Time.fromMinutes(nextTrain.asMinutes() - Time.fromString(trainWalkTime.value).asMinutes());
 }
 
 function getNextTrain() {
-    if (trainStartTime.value == '' || trainEvery.value == '') {
+    if (trainStartTime.value == '' || trainEvery.value == '')
         return Time.invalid();
-    }
 
     let startTime = Time.fromString(trainStartTime.value).asMinutes();
     let every = Time.fromString(trainEvery.value).asMinutes();
     let currentTimeVar = currentTime().asMinutes();
 
-    if (every == 0) {
+    if (every == 0)
         return Time.invalid();
-    }
 
     let n = (currentTimeVar - startTime) / every;
 
-    if (n < 0) {
+    if (n < 0)
         return Time.fromMinutes(startTime);
-    }
 
     return Time.fromMinutes(startTime + (Math.floor(n) + 1) * every);
 }
@@ -183,12 +200,20 @@ function currentTime() {
     }));
 }
 
+function currentDateString() {
+    return new Date().toLocaleDateString('de-DE', {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+
 function addTimeInterval(startTimeFieldID, endTimeFieldID) {
     const startTimeFieldValue = document.getElementById(startTimeFieldID).value;
     const endTimeFieldValue = document.getElementById(endTimeFieldID).value;
 
     if (startTimeFieldValue == '') {
-        alert("Das Startzeitfeld ist leer.");
+        showErrorModal("Das Startzeitfeld ist leer.");
         return;
     }
 
@@ -198,14 +223,14 @@ function addTimeInterval(startTimeFieldID, endTimeFieldID) {
             const customStartTime = Time.fromString(startTimeFieldValue);
 
             if (customStartTime.asMinutes() > currentTime().asMinutes()) {
-                alert("Der Beginn des Zeitstempels liegt in der Zukunft.");
+                showErrorModal("Der Beginn des Zeitstempels liegt in der Zukunft.");
                 return;
             }
 
             tableController.addTimeStamp(TimeStamp.fromCustomBeginTime(customStartTime));
             return;
         } else {
-            alert("Das Endzeitfeld ist leer und es ist bereits ein offener Zeitstempel vorhanden.");
+            showErrorModal("Das Endzeitfeld ist leer und es ist bereits ein offener Zeitstempel vorhanden.");
             return;
         }
     }
@@ -213,39 +238,32 @@ function addTimeInterval(startTimeFieldID, endTimeFieldID) {
     let timeInterval = new TimeInterval(Time.fromString(startTimeFieldValue), Time.fromString(endTimeFieldValue));
 
     if (!timeInterval.isValid()) {
-        alert("Die Zeitangaben sind nicht gültig.");
+        showErrorModal("Die Zeitangaben sind nicht gültig.");
         return;
     }
 
     tableController.addTimeInterval(timeInterval);
 }
 
-function addTimeDifference(timeFieldID) {
-    const timeFieldValue = document.getElementById(timeFieldID).value;
-
-    if (timeFieldValue != '') {
-        tableController.addTimeDifference(new TimeDifference(Time.fromString(timeFieldValue)));
-    } else {
-        alert("Das Zeitfeld ist leer.");
-    }
-
+// function can be called via browser console (add time difference via UI was removed)
+function addTimeDifference(timeDifference) {
+    if (timeDifference != '')
+        tableController.addTimeDifference(new TimeDifference(Time.fromString(timeDifference)));
+    else
+        showErrorModal("Das Zeitfeld ist leer.");
 }
 
 function toggleOvertimeSign() {
-    if (overtimeSign.innerText == '-') {
+    if (overtimeSign.innerText == '-')
         overtimeSign.innerText = '+';
-    } else {
+    else
         overtimeSign.innerText = '-';
-    }
+
     updateUI();
 }
 
 function getOvertimeSign() {
-    if (overtimeSign.innerText == '-') {
-        return -1;
-    } else {
-        return 1;
-    }
+    return overtimeSign.innerText == '-' ? -1 : 1;
 }
 
 function updateUI() {
@@ -275,62 +293,63 @@ function updateIntervalDisplay() {
     interval_display.innerText = timeInterval.getTimeDifference().toString();
 }
 
-
 function loadFromLocalStorage() {
     let userdata = JSON.parse(localStorage.getItem("bdav5.timetowork.userdata"));
 
-    if(userdata == null) {
+    if (userdata == null)
         return;
-    }
 
-    /* TODO: check Date, if not equal, don't load data.
-    const currDate = new Date();
-    const dataDate = new Date(Date.parse(userdata[9]));
+    const sameDay = userdata.date == currentDateString();
 
-    if(currDate.get) {
-
-    }
-    */
-
-    let table = userdata[0];
+    let table = userdata.tableEntries;
     let tableEntries = [];
 
-    if(table != null) {
+    if (table != null && sameDay) {
         for (let i = 0; i < table.length; i++) {
             let tableEntry = table[i];
-    
-            if (tableEntry.classname == 'TimeStamp') {
+
+            if (tableEntry.classname == 'TimeStamp')
                 tableEntries.push(TimeStamp.fromTimeStamp(tableEntry));
-            } else if (tableEntry.classname == 'TimeDifference') {
+            else if (tableEntry.classname == 'TimeDifference')
                 tableEntries.push(TimeDifference.fromTimeDifference(tableEntry));
-            } else if (tableEntry.classname == 'TimeInterval') {
+            else if (tableEntry.classname == 'TimeInterval')
                 tableEntries.push(TimeInterval.fromTimeInterval(tableEntry));
-            }
         }
     }
     tableController.tableEntries = tableEntries;
 
-    timeToWork.value = userdata[1];
-    overtime.value = userdata[2];
+    timeToWork.value = userdata.timeToWork;
 
-    let overtimeSignVar = userdata[3];
-    if(overtimeSignVar == '+' || overtimeSignVar == '-') {
+    let overtimeSignVar;
+    if (sameDay || userdata.nextOvertime == "--:--" || userdata.nextOvertime == undefined) {
+        overtime.value = userdata.overtime;
+        overtimeSignVar = userdata.overtimeSign;
+    } else {
+        if (userdata.nextOvertime.length == 5) { //like "08:45" - next overtime positive
+            overtimeSignVar = "+";
+            overtime.value = userdata.nextOvertime;
+        } else { // like "- 08:45" - next overtime negative
+            overtimeSignVar = "-";
+            overtime.value = userdata.nextOvertime.substring(2);
+        }
+    }
+
+    if (overtimeSignVar == '+' || overtimeSignVar == '-')
         overtimeSign.innerText = overtimeSignVar;
-    } else {
+    else
         overtimeSign.innerText = '+';
-    }
 
-    minBreak.value = userdata[4];
-    trainStartTime.value = userdata[5];
-    trainEvery.value = userdata[6];
-    trainWalkTime.value = userdata[7];
-    
-    let light = userdata[8];
-    if(light == null) {
+    minBreak.value = userdata.minBreak;
+    trainStartTime.value = userdata.trainStartTime;
+    trainEvery.value = userdata.trainEvery;
+    trainWalkTime.value = userdata.trainWalkTime;
+
+    let light = userdata.isLightMode;
+    if (light == null)
         isLightMode = true;
-    } else {
+    else
         isLightMode = light;
-    }
+
 }
 
 function removeAll() {
@@ -338,29 +357,30 @@ function removeAll() {
 }
 
 function saveToLocalStorage() {
-    let userdata = [
-        tableController.tableEntries,
-        timeToWork.value,
-        overtime.value,
-        overtimeSign.innerText,
-        minBreak.value,
-        trainStartTime.value,
-        trainEvery.value,
-        trainWalkTime.value,
-        isLightMode,
-        new Date().toDateString()
-    ];
+    let userdata = {
+        tableEntries: tableController.tableEntries,
+        timeToWork: timeToWork.value,
+        overtime: overtime.value,
+        overtimeSign: overtimeSign.innerText,
+        minBreak: minBreak.value,
+        trainStartTime: trainStartTime.value,
+        trainEvery: trainEvery.value,
+        trainWalkTime: trainWalkTime.value,
+        isLightMode: isLightMode,
+        nextOvertime: getNextOvertime().toString(),
+        date: currentDateString()
+    };
 
     localStorage.setItem("bdav5.timetowork.userdata", JSON.stringify(userdata));
 }
 
 function onLoad() {
 
-    const f = function (e) {
+    const f = () => {
         updateUI();
     }
 
-    const f2 = function (e) {
+    const f2 = () => {
         updateIntervalDisplay();
     }
 
@@ -373,21 +393,21 @@ function onLoad() {
     overtime.addEventListener("input", f);
     minBreak.addEventListener("input", f);
 
+    window.onfocus = () => {
+        updateUI();
+    };
+
+    window.onbeforeunload = () => {
+        saveToLocalStorage();
+    };
+
     loadFromLocalStorage();
     updateUI();
 
-    if(isLightMode) {
+    if (isLightMode)
         lightMode();
-    } else {
+    else
         darkMode();
-    }
-
-}
-
-window.onbeforeunload = closeingCode;
-function closeingCode() {
-    saveToLocalStorage();
-    //removeAll();
 }
 
 onLoad();

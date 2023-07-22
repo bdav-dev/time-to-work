@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Time to Work - Arbeitszeitrechner</title>
+    <title>Arbeitszeitdashboard</title>
     <meta charset='utf-16'>
     <link rel='stylesheet' type='text/css' href='css/main.css'>
 </head>
@@ -10,13 +10,15 @@
 <body>
 
     <div class="title">
-        <h1><u>Arbeitszeitrechner</u></h1>
+        <h1>Arbeitszeitdashboard</h1>
     </div>
 
-    <button id="toggleLightDarkModeButton" class="topLeft neumorphicButton_small"
+    <button id="toggleLightDarkModeButton" class="topLeft neumorphicButton_medium"
         onclick="toggleLightDarkMode()">dunkler Modus</button>
 
-    <div class="topRight neumorphic_small">Version 1.0</div>
+    <button onclick="infoModal.showModal()" class="topRight neumorphicButton_medium">Info</button>
+
+
 
     <div class="centered">
         <span id="time" class="neumorphic_small"></span>
@@ -76,7 +78,7 @@
 
         </div>
 
-
+        <!--
         <div class="neumorphic_medium">
 
             <div class="controllElementTitle">Zeitdifferenz</div>
@@ -90,6 +92,7 @@
             </div>
 
         </div>
+        -->
 
 
         <div class="neumorphic_medium">
@@ -150,6 +153,39 @@
 
 
     <table id="infoTable" class="neumorphic_table"></table>
+
+
+    <dialog id="infoModal" class="modal">
+        <button onclick="infoModal.close()" class="neumorphicButton_medium modalExitButton">&#10005;</button>
+
+
+        <div class="modalTitle">TimeToWork</div>
+        <div class="modalSubTitle">Arbeitszeitdashboard</div>
+
+        <br />
+        <br />
+        <div class="centerItems centered largerText items-center">
+
+            <div class="neumorphic_medium w-fit margin-large">
+                Version 1.1
+            </div>
+
+            <div class="neumorphic_medium w-fit margin-large">
+                GitHub Repository: <a class="link" target="_blank"
+                    href="https://github.com/bdav-dev/time-to-work">https://github.com/bdav-dev/time-to-work</a>
+            </div>
+
+            <div class="neumorphic_medium w-fit margin-large">David Berezowski, 2023</div>
+        </div>
+    </dialog>
+
+
+    <dialog id="errorModal" class="modal centered">
+        <div class="modalTitle">Fehler</div>
+        <div class="modalSubTitle " id="errorModalText"></div>
+        <button onclick="errorModal.close()" class="neumorphicButton_medium okButton">OK</button>
+    </dialog>
+
 
     <script src='js/classes.js'></script>
     <script src='js/main.js'></script>

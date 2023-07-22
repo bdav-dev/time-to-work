@@ -19,9 +19,8 @@ class TimeStamp {
     }
 
     getTimeDifference() {
-        if (this.isOpen()) {
+        if (this.isOpen())
             return TimeDifference.calculateTimeDifference(this.timeInterval.startTime, currentTime());
-        }
 
         return this.timeInterval.getTimeDifference();
     }
@@ -31,9 +30,8 @@ class TimeStamp {
     }
 
     toString() {
-        if (this.isOpen()) {
+        if (this.isOpen())
             return this.timeInterval.startTime.toString() + " - ...";
-        }
 
         return this.timeInterval.toString();
     }
@@ -91,9 +89,8 @@ class TimeInterval {
         if (this.startTime.hours > this.endTime.hours) {
             return false;
         } else if (this.startTime.hours == this.endTime.hours) {
-            if (this.startTime.minutes > this.endTime.minutes) {
+            if (this.startTime.minutes > this.endTime.minutes)
                 return false;
-            }
         }
 
         return true;
@@ -129,16 +126,15 @@ class Time {
     }
 
     static fromTime(time) {
-        if(time == null) {
+        if(time == null)
             return null;
-        }
+        
         return new Time(time.hours, time.minutes);
     }
 
     static fromMinutes(minutes) {
-        if (minutes < 0) {
+        if (minutes < 0)
             return Time.invalid();
-        }
 
         return new Time(Math.floor(minutes / 60), minutes % 60);
     }
@@ -155,30 +151,26 @@ class Time {
     }
 
     static fromMinutesGreaterThanZero(minutes) {
-        if(minutes > 0) {
+        if(minutes > 0)
             return Time.fromMinutes(minutes);
-        }
 
         return Time.invalid();
     }
 
     static fromString(string) {
-        if(string == '') {
+        if(string == '')
             return Time.invalid();
-        }
 
         const seperated = string.split(":");
         return new Time(parseInt(seperated[0]), parseInt(seperated[1]));
     }
 
     isValidTimeOfDay() {
-        if (this.hours < 0 || this.hours > 23) {
+        if (this.hours < 0 || this.hours > 23)
             return false;
-        }
 
-        if (this.minutes < 0 || this.minutes > 59) {
+        if (this.minutes < 0 || this.minutes > 59)
             return false;
-        }
 
         return true;
     }
@@ -188,29 +180,25 @@ class Time {
     }
 
     toString() {
-        if(this.invalid) {
+        if(this.invalid)
             return "--:--";
-        }
 
         let timeAsString = "";
 
-        if (this.negative) {
+        if (this.negative)
             timeAsString = "- ";
-        }
 
-        if (this.hours.toString().length == 1) {
+        if (this.hours.toString().length == 1)
             timeAsString += "0" + this.hours.toString();
-        } else {
+        else
             timeAsString += this.hours.toString();
-        }
 
         timeAsString += ":";
 
-        if (this.minutes.toString().length == 1) {
+        if (this.minutes.toString().length == 1)
             timeAsString += "0" + this.minutes.toString();
-        } else {
+        else
             timeAsString += this.minutes.toString();
-        }
 
         return timeAsString;
     }
@@ -239,7 +227,7 @@ class TimeTableController {
                                 <tr>
                                     <td scope="col"><div class="tableHeadline">Zeitintervall</div></td>
                                     <td scope="col"><div class="tableHeadline">Zeitdifferenz</div></td>
-                                    <td scope="col"><div class="tableHeadline">Aktionen</div></td>
+                                    <td scope="col"><div class="tableHeadline">Löschen</div></td>
                                 </tr>
                               </thead>
                               <tbody class="tableCell">`;
@@ -282,11 +270,10 @@ class TimeTableController {
 
     sortTable() {
         this.tableEntries.sort((a, b) => {
-            if (a instanceof TimeDifference) {
+            if (a instanceof TimeDifference)
                 return -1;
-            } else if (b instanceof TimeDifference) {
+            else if (b instanceof TimeDifference)
                 return 1;
-            }
 
             return a.getStartTime().asMinutes() - b.getStartTime().asMinutes();
         });
@@ -310,11 +297,10 @@ class TimeTableController {
                     beg = obj.timeInterval.startTime;
                     end = obj.timeInterval.endTime;
                 } else {
-                    if (i == this.tableEntries.length - 1) {
+                    if (i == this.tableEntries.length - 1)
                         beg = obj.timeInterval.startTime;
-                    } else {
+                    else
                         return Time.invalid();
-                    }
                 }
             } else {
                 continue;
@@ -329,9 +315,8 @@ class TimeTableController {
             }
         }
 
-        if(br < 0) {
+        if(br < 0)
             return Time.invalid();
-        }
 
         return Time.fromMinutes(br);
     }
@@ -362,9 +347,8 @@ class TimeTableController {
         for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
 
-            if (tableEntry instanceof TimeStamp && tableEntry.isOpen()) {
+            if (tableEntry instanceof TimeStamp && tableEntry.isOpen())
                 return true;
-            }
         }
 
         return false;
@@ -411,6 +395,7 @@ class InfoTableController {
                                     <tr class="tableHeader">
                                         <th scope="col"><div class="tableHeadline">Summe der Arbeitszeit</div></th>
                                         <th scope="col"><div class="tableHeadline">restliche Arbeitszeit</div></th>
+                                        <th scope="col"><div class="tableHeadline">Arbeitsende</div></th>
                                         <th scope="col"><div class="tableHeadline">neuer Zeitsaldo</div></th>
                                         <th scope="col"><div class="tableHeadline">Pause</div></th>
                                         <th scope="col"><div class="tableHeadline">nächster Zug</div></th>
@@ -421,15 +406,11 @@ class InfoTableController {
                                     <tr>
                                         <th scope="row"><div class="tableCell">${getCombinedTime().toString()}</div></th>
                                         <th><div class="tableCell">${getRemainingTimeToWork().toString()}</div></th>
+                                        <th><div class="tableCell">${getEndOfWork().toString()}</div></th>
                                         <th><div class="tableCell">${getNextOvertime().toString()}</div></th>
                                         <th><div class="tableCell">${getBreakText()}</div></th>
                                         <th><div class="tableCell">${getTrainText()}</div></th>
                                     </tr>
                                 </tbody>`;
-    }
-    //${getNextTrainTimeDifference().toString()})
-    // ${getNextTrain().toString()} 
-    // ${getLeaveTimeToCatchTrain().toString()}
-    //<th><div class="tableCell">${getLeaveTimeToCatchTrain().toString()} → ${getNextTrain().toString()} (in ${getNextTrainTimeDifference().toString()})</div></th>
-                                    
+    }                           
 }
