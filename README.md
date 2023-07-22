@@ -11,7 +11,7 @@ Halte mit dem Arbeitszeitdashboard TimeToWork deine Arbeitsstunden im Blick.
 2. Starte die Applikation, in dem du die Datei `timeToWork.html` in deinem Browser öffnest.
 
 ## Benutzeroberfläche
-![TimeToWork-User-Interface](https://github.com/bdav-dev/time-to-work/assets/122749166/903831d3-01a5-43b8-bc34-7e1b71597ced)
+![Time-To-Work-1-1-User-Interface](https://github.com/bdav-dev/time-to-work/assets/122749166/bfbf5ee2-f027-446d-bc32-57c95907499d)
 
 ## Features
 ### <u>Neumorphic Design</u>
