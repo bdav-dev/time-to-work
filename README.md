@@ -76,7 +76,7 @@ folgendes sehen:
    Dieses Feld zeigt dir an, wann der nächste Zug abfährt (und in wie vielen Minuten das ist).
 
 ## Speichern
-Der gesamte Zustand der Applikation wird beim Schließen des Tabs (bei dir lokal via `localstorage`) gesichert. Dieser Zustand wird wiederherstellt, wenn du die Appliaktion wieder öffnest.<br/>
+Der gesamte Zustand der Applikation wird beim Schließen des Tabs (bei dir lokal via `localStorage`) gesichert. Dieser Zustand wird wiederherstellt, wenn du die Appliaktion wieder öffnest.<br/>
 Wenn du aber die Applikation an einem neuen Tag öffnest, werden die Zeitstempel und Zeitintervalle vom Vortag nicht geladen und der am Vortag berechnete neue Zeitsaldo wird als aktueller Zeitsaldo übernommen.
 
 ## Änderungsprotokoll
