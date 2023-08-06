@@ -18,6 +18,8 @@ const errorModalText = document.getElementById("errorModalText");
 
 const root = document.querySelector(':root');
 
+const ONE_MINUTE = 60 * 1000;
+
 let isLightMode = true;
 
 function showErrorModal(text) {
@@ -83,7 +85,7 @@ function getBreakText() {
 
     let remainingBreaktimeAsMinutes = minBreak.asMinutes() - currentBreak.asMinutes();
 
-    if (remainingBreaktimeAsMinutes < 0)
+    if (remainingBreaktimeAsMinutes <= 0)
         return currentBreak.toString() + " (+" + Time.fromMinutes(-1 * remainingBreaktimeAsMinutes).toString() + ")";
     else
         return currentBreak.toString() + " (-" + Time.fromMinutes(remainingBreaktimeAsMinutes).toString() + ")";
@@ -374,6 +376,18 @@ function saveToLocalStorage() {
     localStorage.setItem("bdav5.timetowork.userdata", JSON.stringify(userdata));
 }
 
+function repeatEvery(func, interval) {
+    const now = new Date();
+    const delay = interval - now % interval;
+
+    function start() {
+        func();
+        repeatEvery(func, interval);
+    }
+
+    setTimeout(start, delay);
+}
+
 function onLoad() {
 
     const f = () => {
@@ -408,6 +422,8 @@ function onLoad() {
         lightMode();
     else
         darkMode();
+
+    repeatEvery(updateUI, ONE_MINUTE);
 }
 
 onLoad();

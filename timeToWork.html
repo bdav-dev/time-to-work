@@ -5,6 +5,9 @@
     <title>Arbeitszeitdashboard</title>
     <meta charset='utf-16'>
     <link rel='stylesheet' type='text/css' href='css/main.css'>
+
+    <script src='js/classes.js' defer></script>
+    <script src='js/main.js' defer></script>
 </head>
 
 <body>
@@ -21,10 +24,10 @@
 
 
     <div class="centered">
+        <br/>
         <span id="time" class="neumorphic_small"></span>
         <br />
         <br />
-        <button class="neumorphicButton_medium" onclick="updateUI()">Daten aktualisieren</button>
     </div>
 
     <br />
@@ -73,27 +76,8 @@
                     <button class="neumorphicButton_medium"
                         onclick="addTimeInterval('interval_from', 'interval_to')">Hinzufügen</button>
                 </div>
-
             </div>
-
         </div>
-
-        <!--
-        <div class="neumorphic_medium">
-
-            <div class="controllElementTitle">Zeitdifferenz</div>
-
-            <div class="controllElementContent">
-
-                <input type="time" id="difference"></input>
-
-                <button class="neumorphicButton_medium" onclick="addTimeDifference('difference')">Hinzufügen</button>
-
-            </div>
-
-        </div>
-        -->
-
 
         <div class="neumorphic_medium">
 
@@ -129,7 +113,7 @@
                 </div>
 
                 <div>
-                    <span>Laufzeit: <input type="time" id="train_walktime"></input>
+                    <span>Wegzeit: <input type="time" id="train_walktime"></input>
                 </div>
 
             </div>
@@ -167,7 +151,7 @@
         <div class="centerItems centered largerText items-center">
 
             <div class="neumorphic_medium w-fit margin-large">
-                Version 1.1
+                Version 1.2
             </div>
 
             <div class="neumorphic_medium w-fit margin-large">
@@ -185,10 +169,6 @@
         <div class="modalSubTitle " id="errorModalText"></div>
         <button onclick="errorModal.close()" class="neumorphicButton_medium okButton">OK</button>
     </dialog>
-
-
-    <script src='js/classes.js'></script>
-    <script src='js/main.js'></script>
 </body>
 
 </html>

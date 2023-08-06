@@ -126,9 +126,9 @@ class Time {
     }
 
     static fromTime(time) {
-        if(time == null)
+        if (time == null)
             return null;
-        
+
         return new Time(time.hours, time.minutes);
     }
 
@@ -151,14 +151,14 @@ class Time {
     }
 
     static fromMinutesGreaterThanZero(minutes) {
-        if(minutes > 0)
+        if (minutes > 0)
             return Time.fromMinutes(minutes);
 
         return Time.invalid();
     }
 
     static fromString(string) {
-        if(string == '')
+        if (string == '')
             return Time.invalid();
 
         const seperated = string.split(":");
@@ -180,7 +180,7 @@ class Time {
     }
 
     toString() {
-        if(this.invalid)
+        if (this.invalid)
             return "--:--";
 
         let timeAsString = "";
@@ -315,7 +315,7 @@ class TimeTableController {
             }
         }
 
-        if(br < 0)
+        if (br < 0)
             return Time.invalid();
 
         return Time.fromMinutes(br);
@@ -327,17 +327,14 @@ class TimeTableController {
     }
 
     timestamp() {
-
         for (let i = 0; i < this.tableEntries.length; i++) {
             let tableEntry = this.tableEntries[i];
-
 
             if (tableEntry instanceof TimeStamp && tableEntry.isOpen()) {
                 tableEntry.close();
                 updateUI();
                 return;
             }
-
         }
 
         this.addTimeStamp(new TimeStamp());
@@ -412,5 +409,5 @@ class InfoTableController {
                                         <th><div class="tableCell">${getTrainText()}</div></th>
                                     </tr>
                                 </tbody>`;
-    }                           
+    }
 }
